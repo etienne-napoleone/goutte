@@ -3,7 +3,6 @@ category = "dev"
 description = "Atomic file writes."
 name = "atomicwrites"
 optional = false
-platform = "*"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.2.1"
 
@@ -12,7 +11,6 @@ category = "dev"
 description = "Classes Without Boilerplate"
 name = "attrs"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "18.2.0"
 
@@ -21,7 +19,6 @@ category = "main"
 description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "2018.11.29"
 
@@ -30,7 +27,6 @@ category = "main"
 description = "Universal encoding detector for Python 2 and 3"
 name = "chardet"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "3.0.4"
 
@@ -39,43 +35,34 @@ category = "main"
 description = "Composable command line interface toolkit"
 name = "click"
 optional = false
-platform = "*"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "7.0"
 
 [[package]]
 category = "main"
 description = "Cross-platform colored terminal text."
+marker = "sys_platform == \"win32\""
 name = "colorama"
 optional = false
-platform = "*"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.4.1"
-
-[package.requirements]
-platform = "win32"
 
 [[package]]
 category = "main"
 description = "Log formatting with colors!"
 name = "colorlog"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "3.1.4"
 
 [package.dependencies]
-
-[package.dependencies.colorama]
-platform = "win32"
-version = "*"
+colorama = "*"
 
 [[package]]
 category = "dev"
 description = "Code coverage measurement for Python"
 name = "coverage"
 optional = false
-platform = "*"
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, <4"
 version = "4.5.2"
 
@@ -84,7 +71,6 @@ category = "dev"
 description = "Show coverage stats online via coveralls.io"
 name = "coveralls"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "1.5.1"
 
@@ -98,7 +84,6 @@ category = "dev"
 description = "Pythonic argument parser, that will make you smile"
 name = "docopt"
 optional = false
-platform = "UNKNOWN"
 python-versions = "*"
 version = "0.6.2"
 
@@ -107,7 +92,6 @@ category = "dev"
 description = "the modular source code checker: pep8, pyflakes and co"
 name = "flake8"
 optional = false
-platform = "*"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "3.6.0"
 
@@ -122,7 +106,6 @@ category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
 optional = false
-platform = "*"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.8"
 
@@ -131,7 +114,6 @@ category = "main"
 description = "Python library for serializing any arbitrary object graph into JSON"
 name = "jsonpickle"
 optional = false
-platform = "POSIX"
 python-versions = "*"
 version = "1.0"
 
@@ -140,7 +122,6 @@ category = "dev"
 description = "McCabe checker, plugin for flake8"
 name = "mccabe"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "0.6.1"
 
@@ -149,7 +130,6 @@ category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "4.3.0"
 
@@ -159,24 +139,20 @@ six = ">=1.0.0,<2.0.0"
 [[package]]
 category = "dev"
 description = "Object-oriented filesystem paths"
+marker = "python_version < \"3.6\""
 name = "pathlib2"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "2.3.3"
 
 [package.dependencies]
 six = "*"
 
-[package.requirements]
-python = "<3.6"
-
 [[package]]
 category = "dev"
 description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
 optional = false
-platform = "unix"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.8.0"
 
@@ -185,7 +161,6 @@ category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
 optional = false
-platform = "unix"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.7.0"
 
@@ -194,7 +169,6 @@ category = "dev"
 description = "Python style guide checker"
 name = "pycodestyle"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "2.4.0"
 
@@ -203,7 +177,6 @@ category = "dev"
 description = "passive checker of Python programs"
 name = "pyflakes"
 optional = false
-platform = "*"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.0.0"
 
@@ -212,22 +185,18 @@ category = "dev"
 description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
-platform = "unix"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "3.10.1"
 
 [package.dependencies]
 atomicwrites = ">=1.0"
 attrs = ">=17.4.0"
+colorama = "*"
 more-itertools = ">=4.0.0"
 pluggy = ">=0.7"
 py = ">=1.5.0"
 setuptools = "*"
 six = ">=1.10.0"
-
-[package.dependencies.colorama]
-platform = "win32"
-version = "*"
 
 [package.dependencies.pathlib2]
 python = "<3.6"
@@ -238,7 +207,6 @@ category = "main"
 description = "digitalocean.com API to manage Droplets and Images"
 name = "python-digitalocean"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "1.14.0"
 
@@ -251,7 +219,6 @@ category = "main"
 description = "Python HTTP for Humans."
 name = "requests"
 optional = false
-platform = "*"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.21.0"
 
@@ -262,11 +229,18 @@ idna = ">=2.5,<2.9"
 urllib3 = ">=1.21.1,<1.25"
 
 [[package]]
+category = "main"
+description = "Job scheduling for humans."
+name = "schedule"
+optional = false
+python-versions = "*"
+version = "0.5.0"
+
+[[package]]
 category = "dev"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
-platform = "*"
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
 version = "1.12.0"
 
@@ -275,7 +249,6 @@ category = "main"
 description = "Python Library for Tom's Obvious, Minimal Language"
 name = "toml"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "0.10.0"
 
@@ -284,13 +257,11 @@ category = "main"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
 optional = false
-platform = "*"
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
 version = "1.24.1"
 
 [metadata]
-content-hash = "2b12e1eb64a91476bcba6acbb3b00f1b5302af4f1f4234dfd3dc234399e1f975"
-platform = "*"
+content-hash = "a9ec68b86e25e9fc435e409e8eba6ae52a3bfc5fe6b4f1af3cd68ec650cac303"
 python-versions = "^3.5"
 
 [metadata.hashes]
@@ -317,6 +288,7 @@ pyflakes = ["9a7662ec724d0120012f6e29d6248ae3727d821bba522a0e6b356eff19126a49", 
 pytest = ["3f193df1cfe1d1609d4c583838bea3d532b18d6160fd3f55c9447fdca30848ec", "e246cf173c01169b9617fc07264b7b1316e78d7a650055235d6d897bc80d9660"]
 python-digitalocean = ["9e38295bce257310ac4565538d1cda4169a0a7dafd43e8259db32f2378873eee"]
 requests = ["502a824f31acdacb3a35b6690b5fbf0bc41d63a24a45c4004352b0242707598e", "7bf2a778576d825600030a110f3c0e3e8edc51dfaafe1c146e39a2027784957b"]
+schedule = ["1003a07c2dce12828c25a03a611a7371cedfa956e5f1b4abc32bcc94eb5a335b", "a24e75fc5e5acbd204049d55329e39a2a9a3479bca2e34c7fde81386c9d8d2fa"]
 six = ["3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c", "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"]
 toml = ["229f81c57791a41d65e399fc06bf0848bab550a9dfd5ed66df18ce5f05e73d5c", "235682dd292d5899d361a811df37e04a8828a5b1da3115886b73cf81ebc9100e", "f1db651f9657708513243e61e6cc67d101a39bad662eaa9b5546f789338e07a3"]
 urllib3 = ["61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39", "de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22"]
