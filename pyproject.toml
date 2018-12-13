@@ -24,4 +24,4 @@ coveralls = "^1.5"
 
 
 [tool.poetry.scripts]
-goutte = "goutte.cli:main"
+goutte = "goutte.main:run"
