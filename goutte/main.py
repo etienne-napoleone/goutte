@@ -1,7 +1,14 @@
+from typing import Dict
+import sys
+
 import click
+import colorlog
+# import schedule
 import toml
 
 from goutte import __version__
+
+log = colorlog.getLogger(__name__)
 
 
 @click.command(help='DigitalOcean snapshot automation service')
@@ -11,4 +18,18 @@ from goutte import __version__
 @click.version_option(version=__version__)
 def entrypoint(config: click.File, do_key: str, oneshot: bool) -> None:
     """Command line interface entrypoint"""
-    print(toml.load(config))
+    log.info('Starting goutte v{}.'.format(__version__))
+    assert load_config(config)
+
+
+def load_config(config: click.File) -> Dict[str, Dict]:
+    """Return a config dict from a toml config file"""
+    try:
+        log.info('Loading config from {}.'.format(config.name))
+        return toml.load(config)
+    except TypeError as e:
+        log.error('Could not read file. {}'.format(e))
+        sys.exit()
+    except toml.TomlDecodeError as e:
+        log.error('Could not parse configuration. {}'.format(e))
+        sys.exit()
