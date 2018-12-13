@@ -1,3 +1,10 @@
+[droplets]
+
+[droplets.sgp1-dro-legacy]
+every = '2w'
+retention = '4w'
+oneshot = false
+
 [volumes]
 
 [volumes.sgp1-vol-website-db]
@@ -8,11 +15,4 @@ oneshot = true
 [volumes.sgp1-vol-grafana-db]
 every = '2d'
 retention = '2w'
-oneshot = false
-
-[droplets]
-
-[droplets.sgp1-dro-legacy]
-every = '2w'
-retention = '4w'
 oneshot = false
