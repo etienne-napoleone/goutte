@@ -1,18 +1,15 @@
-[droplets]
+retention = 10
 
-[droplets.sgp1-dro-legacy]
-every = '2w'
-retention = '4w'
-oneshot = false
+[droplets]
+names = [
+  'server01',
+  'server02',
+  'server03',
+]
 
 [volumes]
-
-[volumes.sgp1-vol-website-db]
-every = '1d'
-retention = '10d'
-oneshot = true
-
-[volumes.sgp1-vol-grafana-db]
-every = '2d'
-retention = '2w'
-oneshot = false
+names = [
+  'db01',
+  'redis01',
+  'redis02',
+]

@@ -15,7 +15,6 @@ python-digitalocean = "^1.14"
 colorlog = "^3.1"
 toml = "^0.10.0"
 click = "^7.0"
-crontabs = "^0.1.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
