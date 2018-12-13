@@ -1,2 +1,2 @@
-# do-snapshot
-💾 DigitalOcean snapshots automation
+# goutte
+DigitalOcean snapshot automation service
