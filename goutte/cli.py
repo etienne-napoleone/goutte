@@ -1,4 +1,5 @@
 import click
+import toml
 
 from goutte import __version__
 
@@ -8,6 +9,6 @@ from goutte import __version__
 @click.argument('do_key', envvar='GOUTTE_DO_KEY')
 @click.option('--oneshot', is_flag=True, help='Run all tasks and then stops')
 @click.version_option(version=__version__)
-def main(config: click.File, do_key: str) -> None:
+def main(config: click.File, do_key: str, oneshot: bool) -> None:
     """Command line interface entrypoint"""
-    click.echo('hey')
+    print(toml.load(config))
