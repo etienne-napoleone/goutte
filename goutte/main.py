@@ -18,6 +18,13 @@ log = colorlog.getLogger(__name__)
 def entrypoint(config: click.File, do_key: str) -> None:
     """Command line interface entrypoint"""
     log.info('Starting goutte v{}.'.format(__version__))
+    c = _load_config(config)
+    for droplet in c['droplets']['names']:
+        # do.droplet.snapshot(droplet, c['retention'])
+        pass
+    for volume in c['volumes']['names']:
+        # do.volume.snapshot(volume, c['retention'])
+        pass
 
 
 def _load_config(config: click.File) -> Dict[str, Dict]:
