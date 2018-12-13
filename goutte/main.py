@@ -28,8 +28,9 @@ def load_config(config: click.File) -> Dict[str, Dict]:
         log.info('Loading config from {}.'.format(config.name))
         return toml.load(config)
     except TypeError as e:
-        log.error('Could not read file. {}'.format(e))
+        log.critical('Could not read conf {}. {}'.format(config.name, e))
         sys.exit()
     except toml.TomlDecodeError as e:
-        log.error('Could not parse configuration. {}'.format(e))
+        log.critical('Could not parse toml in config from {}. {}'
+                     .format(config.name, e))
         sys.exit()
