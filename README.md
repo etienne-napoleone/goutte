@@ -1,2 +1,2 @@
 # goutte
-DigitalOcean snapshot automation service
+DigitalOcean snapshot automation.
