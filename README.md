@@ -1,15 +1,15 @@
 # goutte
 DigitalOcean doesn't propose any way of automating snapshots.
-There are [some SaaS](https://snapshooter.io/) that can take care of that but paying to execute some API requests seemed a bit off.
+There are [some SaaS](https://snapshooter.io/) that can take care of it but paying to execute some API requests seemed a bit off.
 
-That's why we developed a simple script that you can run with cron jobs or in CI service like Travis for free.
+That's why we developed a simple script which you can run with cron jobs or in CI services like Travis for free.
 
 ## TODO
 - [x] Configuration from a single TOML file
 - [x] Droplets snapshots
 - [x] Droplets snapshots pruning
-- [ ] Volume snapshots
-- [ ] Volume snapshots pruning
+- [x] Volume snapshots
+- [x] Volume snapshots pruning
 - [ ] Per item retention configuration
 - [ ] Slack alerting
 
@@ -46,7 +46,7 @@ names = [          # Array of volumes you want to snapshot
 ```
 
 ## Usage
-Goutte takes two arguments who can also be set via environment variables:
+Goutte takes two arguments which can also be set via environment variables:
 
 | # | Help     | Description                         | Environment variable |
 | - | -------- | ----------------------------------- | -------------------- |

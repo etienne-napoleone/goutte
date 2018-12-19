@@ -28,7 +28,14 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
     token = do_token
     conf = _load_config(config)
     log.debug(f'Retention is set to {conf["retention"]} snapshots')
-    droplets = _get_droplets(conf['droplets']['names'])
+    try:
+        droplets = _get_droplets(conf['droplets']['names'])
+    except KeyError:
+        droplets = None
+    try:
+        volumes = _get_volumes(conf['volumes']['names'])
+    except KeyError:
+        volumes = None
     try:
         if droplets:
             log.debug(f'Found {len(droplets)} matching droplets')
@@ -38,6 +45,14 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
                 _prune_droplet_snapshots(droplet, conf['retention'])
         else:
             log.warn('No matching droplet found')
+        if volumes:
+            log.debug(f'Found {len(volumes)} matching volumes')
+            for volume in volumes:
+                log.debug(f'Processing {volume.name}')
+                _snapshot_volume(volume)
+                _prune_volume_snapshots(volume, conf['retention'])
+        else:
+            log.warn('No matching volume found')
     except InterruptedError:
         log.critical('Received interuption signal')
         sys.exit(1)
@@ -104,11 +119,73 @@ def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
         snapshots = [digitalocean.Snapshot.get_object(api_token=token,
                                                       snapshot_id=snapshot_id)
                      for snapshot_id in droplet.snapshot_ids]
-        log.debug(f'[{droplet.name}] Exceed retention policy by '
-                  f'{len(snapshots) - retention}')
         if len(snapshots) > retention:
+            log.debug(f'[{droplet.name}] Exceed retention policy by '
+                      f'{len(snapshots) - retention}')
             for snapshot in snapshots[:len(snapshots)-retention]:
                 log.info(f'[{droplet.name}] Prune ({snapshot.name})')
+                snapshot.destroy()
+    except digitalocean.baseapi.TokenError as e:
+        log.error(f'Token not valid: {e}.')
+    except digitalocean.baseapi.DataReadError as e:
+        log.error(f'Could not read response: {e}.')
+    except digitalocean.baseapi.JSONReadError as e:
+        log.error(f'Could not parse json: {e}.')
+    except digitalocean.baseapi.NotFoundError as e:
+        log.error(f'Ressource not found: {e}.')
+    except Exception as e:
+        log.error(f'Unexpected exception: {e}.')
+
+
+def _get_volumes(names: List[str]) -> List[digitalocean.Volume]:
+    """Get the volumes objects from the configuration volume names"""
+    try:
+        manager = digitalocean.Manager(token=token)
+        volumes = manager.get_all_volumes()
+        return [volume for volume in volumes if volume.name in names]
+    except digitalocean.baseapi.TokenError as e:
+        log.error(f'Token not valid: {e}')
+    except digitalocean.baseapi.DataReadError as e:
+        log.error(f'Could not read response: {e}')
+    except digitalocean.baseapi.JSONReadError as e:
+        log.error(f'Could not parse json: {e}')
+    except digitalocean.baseapi.NotFoundError as e:
+        log.error(f'Ressource not found: {e}')
+    except Exception as e:
+        log.error(f'Unexpected exception: {e}')
+
+
+def _snapshot_volume(volume: digitalocean.Volume) -> None:
+    """Take a snapshot of a given volume"""
+    name = 'goutte-{}-{}-{}'.format(
+        volume.name,
+        date.today().strftime('%Y%m%d'),
+        uuid.uuid4().hex[:5])
+    try:
+        volume.snapshot(name)
+        log.info(f'[{volume.name}] Snapshot ({name})')
+    except digitalocean.baseapi.TokenError as e:
+        log.error(f'Token not valid: {e}')
+    except digitalocean.baseapi.DataReadError as e:
+        log.error(f'Could not read response: {e}')
+    except digitalocean.baseapi.JSONReadError as e:
+        log.error(f'Could not parse json: {e}')
+    except digitalocean.baseapi.NotFoundError as e:
+        log.error(f'Ressource not found: {e}')
+    except Exception as e:
+        log.error(f'Unexpected exception: {e}')
+
+
+def _prune_volume_snapshots(volume: digitalocean.Volume,
+                            retention: int) -> None:
+    """Prune goutte snapshots if tmore than the configured retention time"""
+    try:
+        snapshots = [volume.get_snapshots()]
+        if len(snapshots) > retention:
+            log.debug(f'[{volume.name}] Exceed retention policy by '
+                      f'{len(snapshots) - retention}')
+            for snapshot in snapshots[:len(snapshots)-retention]:
+                log.info(f'[{volume.name}] Prune ({snapshot.name})')
                 snapshot.destroy()
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}.')
