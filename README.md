@@ -1,11 +1,17 @@
 # goutte
-DigitalOcean snapshot automation.
-
-## Why
 DigitalOcean doesn't propose any way of automating snapshots.
-There is some SaaS that can take care of that but paying for executing some API requests seemed a bit off.
+There are [some SaaS](https://snapshooter.io/) that can take care of that but paying to execute some API requests seemed a bit off.
 
-That why we developed a simple script that you can run with cron jobs or in a build service like Travis for free.
+That's why we developed a simple script that you can run with cron jobs or in CI service like Travis for free.
+
+## TODO
+- [x] Configuration from a single TOML file
+- [x] Droplets snapshots
+- [x] Droplets snapshots pruning
+- [ ] Volume snapshots
+- [ ] Volume snapshots pruning
+- [ ] Per item retention configuration
+- [ ] Slack alerting
 
 ## Requirements
 - Python ^3.6
@@ -22,17 +28,17 @@ Goutte takes its configuration from a pretty straightforward toml file.
 We provided and example in `goutte.example.toml`.
 
 ```toml
-retention = 10     # Number of backups to keep
+retention = 10     # Number of backups to keep per droplet/volume
 
 [droplets]
-names = [          # Array of droplets names you want to snapshot
+names = [          # Array of droplets you want to snapshot
   'server01',
   'server02',
   'server03',
 ]
 
 [volumes]
-names = [          # Array of volumes names you want to snapshot
+names = [          # Array of volumes you want to snapshot
   'db01',
   'redis01',
   'redis02',
@@ -73,5 +79,7 @@ docker run \
 ## Automating
 You can easily automate it via cron job or by leveraging free CI tools like Travis.
 We provided and example travis configuration in `travis.example.yml`.
+
+You just need to set the environment variables on the Travis website and schedule it with the frequency of your backups.
 
 TODO
