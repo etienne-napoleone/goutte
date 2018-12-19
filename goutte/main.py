@@ -123,9 +123,11 @@ def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
                              retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
     try:
-        snapshots = [digitalocean.Snapshot.get_object(api_token=token,
-                                                      snapshot_id=snapshot_id)
-                     for snapshot_id in droplet.snapshot_ids]
+        snapshots = _order_snapshots([
+            digitalocean.Snapshot.get_object(
+                api_token=token, snapshot_id=snapshot_id
+             ) for snapshot_id in droplet.snapshot_ids
+        ])
         if len(snapshots) > retention:
             log.debug(f'[{droplet.name}] Exceed retention policy by '
                       f'{len(snapshots) - retention}')
@@ -187,7 +189,7 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
                             retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
     try:
-        snapshots = volume.get_snapshots()
+        snapshots = _order_snapshots(volume.get_snapshots())
         if len(snapshots) > retention:
             log.debug(f'[{volume.name}] Exceed retention policy by '
                       f'{len(snapshots) - retention}')
@@ -204,3 +206,10 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
         log.error(f'Ressource not found: {e}.')
     except Exception as e:
         log.error(f'Unexpected exception: {e}.')
+
+
+def _order_snapshots(snapshots: List[digitalocean.Snapshot]
+                     ) -> List[digitalocean.Snapshot]:
+    """Order snapshots by creation date"""
+    print(snapshots[0].created_at)
+    return sorted(snapshots, key=lambda x: x.created_at)
