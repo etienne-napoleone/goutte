@@ -119,9 +119,9 @@ def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
         snapshots = [digitalocean.Snapshot.get_object(api_token=token,
                                                       snapshot_id=snapshot_id)
                      for snapshot_id in droplet.snapshot_ids]
-        log.debug(f'[{droplet.name}] Exceed retention policy by '
-                  f'{len(snapshots) - retention}')
         if len(snapshots) > retention:
+            log.debug(f'[{droplet.name}] Exceed retention policy by '
+                      f'{len(snapshots) - retention}')
             for snapshot in snapshots[:len(snapshots)-retention]:
                 log.info(f'[{droplet.name}] Prune ({snapshot.name})')
                 snapshot.destroy()
@@ -162,7 +162,7 @@ def _snapshot_volume(volume: digitalocean.Volume) -> None:
         date.today().strftime('%Y%m%d'),
         uuid.uuid4().hex[:5])
     try:
-        volume.take_snapshot(name)
+        volume.snapshot(name)
         log.info(f'[{volume.name}] Snapshot ({name})')
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}')
@@ -180,12 +180,10 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
                             retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
     try:
-        snapshots = [digitalocean.Snapshot.get_object(api_token=token,
-                                                      snapshot_id=snapshot_id)
-                     for snapshot_id in volume.snapshot_ids]
-        log.debug(f'[{volume.name}] Exceed retention policy by '
-                  f'{len(snapshots) - retention}')
+        snapshots = [volume.get_snapshots()]
         if len(snapshots) > retention:
+            log.debug(f'[{volume.name}] Exceed retention policy by '
+                      f'{len(snapshots) - retention}')
             for snapshot in snapshots[:len(snapshots)-retention]:
                 log.info(f'[{volume.name}] Prune ({snapshot.name})')
                 snapshot.destroy()
