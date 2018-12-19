@@ -28,7 +28,10 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
     token = do_token
     conf = _load_config(config)
     log.debug(f'Retention is set to {conf["retention"]} snapshots')
-    droplets = _get_droplets(conf['droplets']['names'])
+    try:
+        droplets = _get_droplets(conf['droplets']['names'])
+    except KeyError:
+        droplets = None
     try:
         if droplets:
             log.debug(f'Found {len(droplets)} matching droplets')
@@ -128,6 +131,27 @@ def _get_volumes(names: List[str]) -> List[digitalocean.Volume]:
         manager = digitalocean.Manager(token=token)
         volumes = manager.get_all_volumes()
         return [volume for volume in volumes if volume.name in names]
+    except digitalocean.baseapi.TokenError as e:
+        log.error(f'Token not valid: {e}')
+    except digitalocean.baseapi.DataReadError as e:
+        log.error(f'Could not read response: {e}')
+    except digitalocean.baseapi.JSONReadError as e:
+        log.error(f'Could not parse json: {e}')
+    except digitalocean.baseapi.NotFoundError as e:
+        log.error(f'Ressource not found: {e}')
+    except Exception as e:
+        log.error(f'Unexpected exception: {e}')
+
+
+def _snapshot_volume(volume: digitalocean.Volume) -> None:
+    """Take a snapshot of a given volume"""
+    name = 'goutte-{}-{}-{}'.format(
+        volume.name,
+        date.today().strftime('%Y%m%d'),
+        uuid.uuid4().hex[:5])
+    try:
+        volume.take_snapshot(name)
+        log.info(f'[{volume.name}] Snapshot ({name})')
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}')
     except digitalocean.baseapi.DataReadError as e:
