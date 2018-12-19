@@ -1,14 +1,15 @@
-from typing import Dict
+from typing import Dict, List
 import sys
 
 import click
 import colorlog
-# import schedule
+import digitalocean
 import toml
 
 from goutte import __version__
 
 log = colorlog.getLogger(__name__)
+token = None
 
 
 @click.command(help='DigitalOcean snapshot automation service')
@@ -30,12 +31,14 @@ def entrypoint(config: click.File, do_key: str) -> None:
 def _load_config(config: click.File) -> Dict[str, Dict]:
     """Return a config dict from a toml config file"""
     try:
-        log.info('Loading config from {}.'.format(config.name))
+        # TODO check minimum validity (retention)
+        log.debug('Loading config from {}'.format(config.name))
         return toml.load(config)
     except TypeError as e:
-        log.critical('Could not read conf {}. {}'.format(config.name, e))
-        sys.exit()
+        log.critical('Could not read conf {}: {}'.format(config.name, e))
+        sys.exit(1)
     except toml.TomlDecodeError as e:
-        log.critical('Could not parse toml in config from {}. {}'
+        log.critical('Could not parse toml in config from {}: {}'
                      .format(config.name, e))
-        sys.exit()
+        sys.exit(1)
+
