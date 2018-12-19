@@ -1,5 +1,7 @@
+from datetime import date
 from typing import Dict, List
 import sys
+import uuid
 
 import click
 import colorlog
@@ -14,18 +16,31 @@ token = None
 
 @click.command(help='DigitalOcean snapshot automation service')
 @click.argument('config', envvar='GOUTTE_CONFIG', type=click.File('r'))
-@click.argument('do_key', envvar='GOUTTE_DO_KEY')
+@click.argument('do_token', envvar='GOUTTE_DO_TOKEN')
+@click.option('--debug', is_flag=True, help='Enable debug mode')
 @click.version_option(version=__version__)
-def entrypoint(config: click.File, do_key: str) -> None:
+def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
     """Command line interface entrypoint"""
-    log.info('Starting goutte v{}.'.format(__version__))
-    c = _load_config(config)
-    for droplet in c['droplets']['names']:
-        # do.droplet.snapshot(droplet, c['retention'])
-        pass
-    for volume in c['volumes']['names']:
-        # do.volume.snapshot(volume, c['retention'])
-        pass
+    global token
+    if debug:
+        log.setLevel('DEBUG')
+    log.info('Starting goutte v{}'.format(__version__))
+    token = do_token
+    conf = _load_config(config)
+    log.debug(f'Retention is set to {conf["retention"]} snapshots')
+    droplets = _get_droplets(conf['droplets']['names'])
+    try:
+        if droplets:
+            log.debug(f'Found {len(droplets)} matching droplets')
+            for droplet in droplets:
+                log.debug(f'Processing {droplet.name}')
+                _snapshot_droplet(droplet)
+                _prune_droplet_snapshots(droplet, conf['retention'])
+        else:
+            log.warn('No matching droplet found')
+    except InterruptedError:
+        log.critical('Received interuption signal')
+        sys.exit(1)
 
 
 def _load_config(config: click.File) -> Dict[str, Dict]:
