@@ -33,6 +33,10 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
     except KeyError:
         droplets = None
     try:
+        volumes = _get_volumes(conf['volumes']['names'])
+    except KeyError:
+        volumes = None
+    try:
         if droplets:
             log.debug(f'Found {len(droplets)} matching droplets')
             for droplet in droplets:
@@ -41,6 +45,14 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
                 _prune_droplet_snapshots(droplet, conf['retention'])
         else:
             log.warn('No matching droplet found')
+        if volumes:
+            log.debug(f'Found {len(volumes)} matching volumes')
+            for volume in volumes:
+                log.debug(f'Processing {volume.name}')
+                _snapshot_volume(volume)
+                _prune_volume_snapshots(volume, conf['retention'])
+        else:
+            log.warn('No matching volume found')
     except InterruptedError:
         log.critical('Received interuption signal')
         sys.exit(1)
