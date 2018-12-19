@@ -60,3 +60,24 @@ def _get_droplets(names: List[str]) -> List[digitalocean.Droplet]:
     except Exception as e:
         log.error(f'Unexpected exception: {e}')
 
+
+def _snapshot_droplet(droplet: digitalocean.Droplet) -> None:
+    """Take a snapshot of a given droplet"""
+    name = 'goutte-{}-{}-{}'.format(
+        droplet.name,
+        date.today().strftime('%Y%m%d'),
+        uuid.uuid4().hex[:5])
+    try:
+        droplet.take_snapshot(name)
+        log.info(f'[{droplet.name}] Snapshot ({name})')
+    except digitalocean.baseapi.TokenError as e:
+        log.error(f'Token not valid: {e}')
+    except digitalocean.baseapi.DataReadError as e:
+        log.error(f'Could not read response: {e}')
+    except digitalocean.baseapi.JSONReadError as e:
+        log.error(f'Could not parse json: {e}')
+    except digitalocean.baseapi.NotFoundError as e:
+        log.error(f'Ressource not found: {e}')
+    except Exception as e:
+        log.error(f'Unexpected exception: {e}')
+
