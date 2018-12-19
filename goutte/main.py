@@ -180,7 +180,7 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
                             retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
     try:
-        snapshots = [volume.get_snapshots()]
+        snapshots = volume.get_snapshots()
         if len(snapshots) > retention:
             log.debug(f'[{volume.name}] Exceed retention policy by '
                       f'{len(snapshots) - retention}')
