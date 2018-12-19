@@ -162,3 +162,28 @@ def _snapshot_volume(volume: digitalocean.Volume) -> None:
         log.error(f'Ressource not found: {e}')
     except Exception as e:
         log.error(f'Unexpected exception: {e}')
+
+
+def _prune_volume_snapshots(volume: digitalocean.Volume,
+                            retention: int) -> None:
+    """Prune goutte snapshots if tmore than the configured retention time"""
+    try:
+        snapshots = [digitalocean.Snapshot.get_object(api_token=token,
+                                                      snapshot_id=snapshot_id)
+                     for snapshot_id in volume.snapshot_ids]
+        log.debug(f'[{volume.name}] Exceed retention policy by '
+                  f'{len(snapshots) - retention}')
+        if len(snapshots) > retention:
+            for snapshot in snapshots[:len(snapshots)-retention]:
+                log.info(f'[{volume.name}] Prune ({snapshot.name})')
+                snapshot.destroy()
+    except digitalocean.baseapi.TokenError as e:
+        log.error(f'Token not valid: {e}.')
+    except digitalocean.baseapi.DataReadError as e:
+        log.error(f'Could not read response: {e}.')
+    except digitalocean.baseapi.JSONReadError as e:
+        log.error(f'Could not parse json: {e}.')
+    except digitalocean.baseapi.NotFoundError as e:
+        log.error(f'Ressource not found: {e}.')
+    except Exception as e:
+        log.error(f'Unexpected exception: {e}.')
