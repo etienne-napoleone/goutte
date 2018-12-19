@@ -30,13 +30,6 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
     log.debug(f'Retention is set to {conf["retention"]} snapshots')
     try:
         droplets = _get_droplets(conf['droplets']['names'])
-    except KeyError:
-        droplets = None
-    try:
-        volumes = _get_volumes(conf['volumes']['names'])
-    except KeyError:
-        volumes = None
-    try:
         if droplets:
             log.debug(f'Found {len(droplets)} matching droplets')
             for droplet in droplets:
@@ -45,6 +38,13 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
                 _prune_droplet_snapshots(droplet, conf['retention'])
         else:
             log.warn('No matching droplet found')
+    except KeyError:
+        droplets = None
+    except InterruptedError:
+        log.critical('Received interuption signal')
+        sys.exit(1)
+    try:
+        volumes = _get_volumes(conf['volumes']['names'])
         if volumes:
             log.debug(f'Found {len(volumes)} matching volumes')
             for volume in volumes:
@@ -53,6 +53,8 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
                 _prune_volume_snapshots(volume, conf['retention'])
         else:
             log.warn('No matching volume found')
+    except KeyError:
+        volumes = None
     except InterruptedError:
         log.critical('Received interuption signal')
         sys.exit(1)
@@ -63,13 +65,18 @@ def _load_config(config: click.File) -> Dict[str, Dict]:
     try:
         # TODO check minimum validity (retention)
         log.debug('Loading config from {}'.format(config.name))
-        return toml.load(config)
+        config = toml.load(config)
+        assert config['retention']
+        return config
     except TypeError as e:
         log.critical('Could not read conf {}: {}'.format(config.name, e))
         sys.exit(1)
     except toml.TomlDecodeError as e:
         log.critical('Could not parse toml in config from {}: {}'
                      .format(config.name, e))
+        sys.exit(1)
+    except KeyError as e:
+        log.critical('Malformated configuration: {} is missing'.format(e))
         sys.exit(1)
 
 
