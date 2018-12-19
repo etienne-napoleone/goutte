@@ -14,10 +14,10 @@ log = colorlog.getLogger(__name__)
 token = None
 
 
-@click.command(help='DigitalOcean snapshot automation service')
+@click.command(help='DigitalOcean snapshot automation.')
 @click.argument('config', envvar='GOUTTE_CONFIG', type=click.File('r'))
 @click.argument('do_token', envvar='GOUTTE_DO_TOKEN')
-@click.option('--debug', is_flag=True, help='Enable debug mode')
+@click.option('--debug', is_flag=True, help='Enable debug logging')
 @click.version_option(version=__version__)
 def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
     """Command line interface entrypoint"""
