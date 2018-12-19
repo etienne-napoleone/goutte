@@ -120,3 +120,21 @@ def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
         log.error(f'Ressource not found: {e}.')
     except Exception as e:
         log.error(f'Unexpected exception: {e}.')
+
+
+def _get_volumes(names: List[str]) -> List[digitalocean.Volume]:
+    """Get the volumes objects from the configuration volume names"""
+    try:
+        manager = digitalocean.Manager(token=token)
+        volumes = manager.get_all_volumes()
+        return [volume for volume in volumes if volume.name in names]
+    except digitalocean.baseapi.TokenError as e:
+        log.error(f'Token not valid: {e}')
+    except digitalocean.baseapi.DataReadError as e:
+        log.error(f'Could not read response: {e}')
+    except digitalocean.baseapi.JSONReadError as e:
+        log.error(f'Could not parse json: {e}')
+    except digitalocean.baseapi.NotFoundError as e:
+        log.error(f'Ressource not found: {e}')
+    except Exception as e:
+        log.error(f'Unexpected exception: {e}')
