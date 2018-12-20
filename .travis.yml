@@ -32,3 +32,5 @@ deploy:
     on:
       tags: true
       python: 3.6
+after_deploy:
+  - curl -XPOST $DOCKER_HOOK
