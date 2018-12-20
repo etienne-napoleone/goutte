@@ -56,7 +56,7 @@ Goutte takes two arguments which can also be set via environment variables:
 ```bash
 Usage: goutte [OPTIONS] CONFIG DO_TOKEN
 
-  DigitalOcean snapshot automation.
+  DigitalOcean snapshots automation.
 
 Options:
   --only [snapshot|prune]  Only snapshot or only prune

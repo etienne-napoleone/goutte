@@ -14,7 +14,7 @@ log = colorlog.getLogger(__name__)
 token = None
 
 
-@click.command(help='DigitalOcean snapshot automation.')
+@click.command(help='DigitalOcean snapshots automation.')
 @click.argument('config', envvar='GOUTTE_CONFIG', type=click.File('r'))
 @click.argument('do_token', envvar='GOUTTE_DO_TOKEN')
 @click.option('--only', type=click.Choice(['snapshot', 'prune']),
