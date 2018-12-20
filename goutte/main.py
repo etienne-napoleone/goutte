@@ -71,7 +71,7 @@ def _process_droplets(conf: Dict[str, Union[Dict[str, str], str]],
                 if only == 'snapshot' or not only:
                     _snapshot_droplet(droplet)
         else:
-            log.warn('No matching droplet found')
+            log.warning('No matching droplet found')
     except KeyError:
         droplets = None
     except KeyboardInterrupt:
@@ -93,9 +93,9 @@ def _process_volumes(conf: Dict[str, Union[Dict[str, str], str]],
                 if only == 'snapshot' or not only:
                     _snapshot_volume(volume)
         else:
-            log.warn('No matching volume found')
+            log.warning('No matching volume found')
     except KeyError:
-        volumes = None
+        pass
     except KeyboardInterrupt:
         log.critical('Received interuption signal')
         sys.exit(1)
