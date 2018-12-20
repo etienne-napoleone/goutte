@@ -106,7 +106,7 @@ def _snapshot_droplet(droplet: digitalocean.Droplet) -> None:
         uuid.uuid4().hex[:5])
     try:
         droplet.take_snapshot(name)
-        log.info(f'[{droplet.name}] Snapshot ({name})')
+        log.info(f'{droplet.name} - Snapshot ({name})')
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}')
     except digitalocean.baseapi.DataReadError as e:
@@ -129,10 +129,10 @@ def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
              ) for snapshot_id in droplet.snapshot_ids
         ])
         if len(snapshots) > retention:
-            log.debug(f'[{droplet.name}] Exceed retention policy by '
+            log.debug(f'{droplet.name} - Exceed retention policy by '
                       f'{len(snapshots) - retention}')
             for snapshot in snapshots[:len(snapshots)-retention]:
-                log.info(f'[{droplet.name}] Prune ({snapshot.name})')
+                log.info(f'{droplet.name} - Prune ({snapshot.name})')
                 snapshot.destroy()
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}.')
@@ -172,7 +172,7 @@ def _snapshot_volume(volume: digitalocean.Volume) -> None:
         uuid.uuid4().hex[:5])
     try:
         volume.snapshot(name)
-        log.info(f'[{volume.name}] Snapshot ({name})')
+        log.info(f'{volume.name} - Snapshot ({name})')
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}')
     except digitalocean.baseapi.DataReadError as e:
@@ -191,10 +191,10 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
     try:
         snapshots = _order_snapshots(volume.get_snapshots())
         if len(snapshots) > retention:
-            log.debug(f'[{volume.name}] Exceed retention policy by '
+            log.debug(f'{volume.name} - Exceed retention policy by '
                       f'{len(snapshots) - retention}')
             for snapshot in snapshots[:len(snapshots)-retention]:
-                log.info(f'[{volume.name}] Prune ({snapshot.name})')
+                log.info(f'{volume.name} - Prune ({snapshot.name})')
                 snapshot.destroy()
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}.')
