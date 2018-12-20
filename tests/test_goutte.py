@@ -18,6 +18,22 @@ def test_snapshot_volume(caplog):
         assert 'testvol' in caplog.records[0].message
 
 
+def test_snapshot_volume_raise(caplog):
+    exceptions = [
+        digitalocean.baseapi.TokenError,
+        digitalocean.baseapi.DataReadError,
+        digitalocean.baseapi.JSONReadError,
+        digitalocean.baseapi.NotFoundError
+    ]
+    for exception in exceptions:
+        volume = mock.Volume(name='testvol', throw=exception)
+        with caplog.at_level('INFO'):
+            main._snapshot_volume(volume)
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == 'ERROR'
+            caplog.clear()
+
+
 def test_prune_droplet_snapshots(caplog):
     volume = mock.Volume('testvol', [
         mock.Snapshot(name='goutte-snapshot1', created_at='2018'),
@@ -42,7 +58,7 @@ def test_prune_droplet_snapshots_goutte_prefix_only(caplog):
         assert len(caplog.records) == 0
 
 
-def test_prune_droplet_snapshots_goutte_raise(caplog):
+def test_prune_droplet_snapshots_raise(caplog):
     exceptions = [
         digitalocean.baseapi.TokenError,
         digitalocean.baseapi.DataReadError,
