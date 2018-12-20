@@ -10,7 +10,6 @@ That's why we developed a simple script which you can run with cron jobs or in C
 - [x] Droplets snapshots pruning
 - [x] Volume snapshots
 - [x] Volume snapshots pruning
-- [ ] Per item retention configuration
 - [ ] Slack alerting
 - [ ] Add droplets and volumes by tag
 
@@ -55,15 +54,15 @@ Goutte takes two arguments which can also be set via environment variables:
 | 2 | DO_TOKEN | Your DigitalOcean API token         | `GOUTTE_DO_TOKEN`    |
 
 ```bash
-$ goutte --help
 Usage: goutte [OPTIONS] CONFIG DO_TOKEN
 
-  DigitalOcean snapshot automation service
+  DigitalOcean snapshot automation.
 
 Options:
-  --debug    Enable debug logging
-  --version  Show the version and exit.
-  --help     Show this message and exit.
+  --only [snapshot|prune]  Only snapshot or only prune
+  --debug                  Enable debug logging
+  --version                Show the version and exit.
+  --help                   Show this message and exit.
 ```
 
 ## Run with Docker
