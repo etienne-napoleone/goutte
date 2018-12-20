@@ -1,0 +1,15 @@
+retention = 10
+
+[droplets]
+names = [
+  'server01',
+  'server02',
+  'server03',
+]
+
+[volumes]
+names = [
+  'db01',
+  'redis01',
+  'redis02',
+]
