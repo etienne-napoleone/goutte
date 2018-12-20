@@ -9,6 +9,43 @@ def test_version():
     assert __version__ == '1.0.0'
 
 
+def test_process_droplets(caplog, monkeypatch):
+    def get_droplets(names):
+        return [mock.Droplet(name='testdroplet')]
+    conf = {'retention': 1, 'droplets': {'names': ['testdroplet']}}
+    monkeypatch.setattr(main, '_get_droplets', get_droplets)
+    monkeypatch.setattr(main, '_prune_droplet_snapshots', mock.nothing)
+    monkeypatch.setattr(main, '_snapshot_droplet', mock.nothing)
+    with caplog.at_level('INFO'):
+        main._process_droplets(conf=conf, only=None)
+        assert len(caplog.records) == 0
+
+
+def test_process_droplets_no_vol(caplog, monkeypatch):
+    def get_droplets(names):
+        return []
+    conf = {'retention': 1, 'droplets': {'names': ['testdroplet']}}
+    monkeypatch.setattr(main, '_get_droplets', get_droplets)
+    monkeypatch.setattr(main, '_prune_droplet_snapshots', mock.nothing)
+    monkeypatch.setattr(main, '_snapshot_droplet', mock.nothing)
+    with caplog.at_level('INFO'):
+        main._process_droplets(conf=conf, only=None)
+        assert len(caplog.records) == 1
+        assert caplog.records[0].levelname == 'WARNING'
+
+
+def test_process_droplets_key_error(caplog, monkeypatch):
+    def get_droplets(names):
+        return [mock.Droplet(name='testdroplet')]
+    conf = {'retention': 1, 'droplets': {'names': ['testdroplet2']}}
+    monkeypatch.setattr(main, '_get_droplets', get_droplets)
+    monkeypatch.setattr(main, '_prune_droplet_snapshots', mock.nothing)
+    monkeypatch.setattr(main, '_snapshot_droplet', mock.nothing)
+    with caplog.at_level('INFO'):
+        main._process_droplets(conf=conf, only=None)
+        assert len(caplog.records) == 0
+
+
 def test_process_volumes(caplog, monkeypatch):
     def get_volumes(names):
         return [mock.Volume(name='testvol')]
