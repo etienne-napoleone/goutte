@@ -24,13 +24,10 @@ class Volume:
         self.throw = throw
 
     def get_snapshots(self):
-        if self.throw:
-            raise self.throw
         return self.snapshots
 
     def snapshot(self, name):
-        if self.throw:
-            raise self.throw
+        pass
 
 
 class Droplet:
