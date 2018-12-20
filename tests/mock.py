@@ -35,6 +35,9 @@ class Droplet:
         self.name = name
         self.snapshot_ids = snapshot_ids
 
+    def take_snapshot(self, name):
+        pass
+
 
 class Manager:
     def __init__(self, token=None):
@@ -43,4 +46,9 @@ class Manager:
     def get_all_volumes(self):
         return [
             Volume(name='testvol')
+        ]
+
+    def get_all_droplets(self):
+        return [
+            Droplet(name='testdroplet')
         ]

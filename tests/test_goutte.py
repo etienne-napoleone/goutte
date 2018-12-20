@@ -9,6 +9,20 @@ def test_version():
     assert __version__ == '1.0.0'
 
 
+def test_get_droplets(monkeypatch):
+    monkeypatch.setattr(digitalocean, 'Manager', mock.Manager)
+    assert 'testdroplet' in main._get_droplets(['testdroplet'])[0].name
+
+
+def test_snapshot_droplet(caplog):
+    droplet = mock.Droplet(name='testdroplet')
+    with caplog.at_level('INFO'):
+        main._snapshot_droplet(droplet)
+        assert len(caplog.records) == 1
+        assert caplog.records[0].levelname == 'INFO'
+        assert 'testdroplet' in caplog.records[0].message
+
+
 def test_prune_droplet_snapshots(caplog, monkeypatch):
     monkeypatch.setattr(digitalocean, 'Snapshot', mock.Snapshot)
     droplet = mock.Droplet(name='testdroplet', snapshot_ids=['3', '2', '1'])
