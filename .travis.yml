@@ -10,7 +10,7 @@ install:
 
 script:
   - flake8 .
-  # - coverage run --source tmn -m pytest -v
+  - coverage run --source goutte -m pytest -v
   # - coverage report
   # - coveralls
 
