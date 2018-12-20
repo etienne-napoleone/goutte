@@ -1,4 +1,6 @@
 import digitalocean
+import pytest
+import toml
 
 from goutte import __version__
 from goutte import main
@@ -7,6 +9,52 @@ from tests import mock
 
 def test_version():
     assert __version__ == '1.0.0'
+
+
+def test_load_config(monkeypatch):
+    def load(file):
+        return {'retention': 2}
+    monkeypatch.setattr(toml, 'load', load)
+    assert main._load_config(mock.File(name='test.toml'))['retention'] == 2
+
+
+def test_load_config_raise_typeerror(caplog, monkeypatch):
+    def load(file):
+        raise TypeError
+    monkeypatch.setattr(toml, 'load', load)
+    with caplog.at_level('INFO'):
+        with pytest.raises(SystemExit) as e:
+            main._load_config(mock.File(name='test.toml'))
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == 'CRITICAL'
+            assert e.type == SystemExit
+            assert e.value.code == 1
+
+
+def test_load_config_raise_tomldecodeerror(caplog, monkeypatch):
+    def load(file):
+        raise toml.TomlDecodeError
+    monkeypatch.setattr(toml, 'load', load)
+    with caplog.at_level('INFO'):
+        with pytest.raises(SystemExit) as e:
+            main._load_config(mock.File(name='test.toml'))
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == 'CRITICAL'
+            assert e.type == SystemExit
+            assert e.value.code == 1
+
+
+def test_load_config_config_keyerror(caplog, monkeypatch):
+    def load(file):
+        return {}
+    monkeypatch.setattr(toml, 'load', load)
+    with caplog.at_level('INFO'):
+        with pytest.raises(SystemExit) as e:
+            main._load_config(mock.File(name='test.toml'))
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == 'CRITICAL'
+            assert e.type == SystemExit
+            assert e.value.code == 1
 
 
 def test_process_droplets(caplog, monkeypatch):

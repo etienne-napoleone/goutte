@@ -56,3 +56,8 @@ class Manager:
         return [
             Droplet(name='testdroplet')
         ]
+
+
+class File:
+    def __init__(self, name=None):
+        self.name = name
