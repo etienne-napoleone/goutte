@@ -211,5 +211,4 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
 def _order_snapshots(snapshots: List[digitalocean.Snapshot]
                      ) -> List[digitalocean.Snapshot]:
     """Order snapshots by creation date"""
-    print(snapshots[0].created_at)
     return sorted(snapshots, key=lambda x: x.created_at)
