@@ -31,6 +31,8 @@ def entrypoint(config: click.File, do_token: str, only: str,
     token = do_token
     conf = _load_config(config)
     log.debug(f'Retention is set to {conf["retention"]} snapshots')
+    if only:
+        log.debug(f'Will only {only}')
     _process_droplets(conf, only)
     _process_volumes(conf, only)
 
