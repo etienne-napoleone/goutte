@@ -1,3 +1,7 @@
+def nothing(*args, **kwargs):
+    pass
+
+
 class Snapshot:
     def __init__(self, created_at=None, name=None, id=None):
         self.created_at = created_at

@@ -9,6 +9,43 @@ def test_version():
     assert __version__ == '1.0.0'
 
 
+def test_process_volumes(caplog, monkeypatch):
+    def get_volumes(names):
+        return [mock.Volume(name='testvol')]
+    conf = {'retention': 1, 'volumes': {'names': ['testvol']}}
+    monkeypatch.setattr(main, '_get_volumes', get_volumes)
+    monkeypatch.setattr(main, '_prune_volume_snapshots', mock.nothing)
+    monkeypatch.setattr(main, '_snapshot_volume', mock.nothing)
+    with caplog.at_level('INFO'):
+        main._process_volumes(conf=conf, only=None)
+        assert len(caplog.records) == 0
+
+
+def test_process_volumes_no_vol(caplog, monkeypatch):
+    def get_volumes(names):
+        return []
+    conf = {'retention': 1, 'volumes': {'names': ['testvol']}}
+    monkeypatch.setattr(main, '_get_volumes', get_volumes)
+    monkeypatch.setattr(main, '_prune_volume_snapshots', mock.nothing)
+    monkeypatch.setattr(main, '_snapshot_volume', mock.nothing)
+    with caplog.at_level('INFO'):
+        main._process_volumes(conf=conf, only=None)
+        assert len(caplog.records) == 1
+        assert caplog.records[0].levelname == 'WARNING'
+
+
+def test_process_volumes_key_error(caplog, monkeypatch):
+    def get_volumes(names):
+        return [mock.Volume(name='testvol')]
+    conf = {'retention': 1, 'volumes': {'names': ['testvol2']}}
+    monkeypatch.setattr(main, '_get_volumes', get_volumes)
+    monkeypatch.setattr(main, '_prune_volume_snapshots', mock.nothing)
+    monkeypatch.setattr(main, '_snapshot_volume', mock.nothing)
+    with caplog.at_level('INFO'):
+        main._process_volumes(conf=conf, only=None)
+        assert len(caplog.records) == 0
+
+
 def test_get_droplets(monkeypatch):
     monkeypatch.setattr(digitalocean, 'Manager', mock.Manager)
     assert 'testdroplet' in main._get_droplets(['testdroplet'])[0].name
