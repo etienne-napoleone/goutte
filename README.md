@@ -65,6 +65,14 @@ Options:
   --help                   Show this message and exit.
 ```
 
+Running "snapshot only" for a configuration file containing one droplet and one volume:
+```bash
+$ goutte goutte.toml $do_token --only snapshot
+13:32:48 - INFO - Starting goutte v0.1.0
+13:32:52 - INFO - sgp1-website-01 - Snapshot (goutte-sgp1-website-01-20181220-56bde)
+13:32:59 - INFO - sgp1-mariadb-01 - Snapshot (goutte-sgp1-mariadb-01-20181220-3673d)
+```
+
 ## Run with Docker
 We have a Docker image ready for you to use on Docker Hub.
 It will read by default the configuration under `/goutte/goutte.toml`
