@@ -32,21 +32,9 @@ def test_prune_droplet_snapshots_goutte_prefix_only(caplog, monkeypatch):
             assert "goutte-snapshot2" not in record.message
 
 
-def test_get_volumes(caplog):
-    exceptions = [
-        digitalocean.baseapi.TokenError,
-        digitalocean.baseapi.DataReadError,
-        digitalocean.baseapi.JSONReadError,
-        digitalocean.baseapi.NotFoundError,
-        Exception,
-    ]
-    for exception in exceptions:
-        volume = mock.Volume(name='testvol', throw=exception)
-        with caplog.at_level('INFO'):
-            main._snapshot_volume(volume)
-            assert len(caplog.records) == 1
-            assert caplog.records[0].levelname == 'ERROR'
-            caplog.clear()
+def test_get_volumes(monkeypatch):
+    monkeypatch.setattr(digitalocean, 'Manager', mock.Manager)
+    assert 'testvol' in main._get_volumes(['testvol'])[0].name
 
 
 def test_snapshot_volume(caplog):
