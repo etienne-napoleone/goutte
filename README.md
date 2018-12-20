@@ -78,8 +78,7 @@ docker run \
 ## Automating with Travis
 You can easily automate it via cron job but the easiest way would be by leveraging free CI tools like Travis.
 
-### 1. Create a backup repo
-You can create a repo which contains your `goutte.toml` configuration and the travis file `.travis.yml` we provide (`.travis.example.yml`) :
+1. You can create a repo which contains your `goutte.toml` configuration and the following travis file `.travis.yml` :
 
 ```yml
 language: python
@@ -92,10 +91,7 @@ script:
   - goutte # Don't forget to set $GOUTTE_DO_TOKEN in Travis config
 ```
 
-### 2. Travis
-Enable the repo on Travis and then change this in the configuration:
-- Add the environment variable GOUTTE_DO_TOKEN with the value of your DigitalOcean API key
-- Enable daily cron job
-
-### 3. ???
-You're good to go, goutte will run everyday and take care of the snapshots.
+2. Enable the repo in Travis and then go to the configuration
+3. Add the environment variable GOUTTE_DO_TOKEN with the value of your DigitalOcean API key
+4. Enable daily cron job
+5. You're good to go, goutte will run everyday and take care of the snapshots.
