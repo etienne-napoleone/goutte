@@ -1,0 +1,8 @@
+language: python
+python: 3.6
+
+install:
+  - pip install goutte
+
+script:
+  - goutte goutte.toml  # Don't forget to set $GOUTTE_DO_TOKEN in Travis config

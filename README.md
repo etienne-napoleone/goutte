@@ -4,15 +4,6 @@ There are [some SaaS](https://snapshooter.io/) that can take care of it but payi
 
 That's why we developed a simple script which you can run with cron jobs or in CI services like Travis for free.
 
-## TODO
-- [x] Configuration from a single TOML file
-- [x] Droplets snapshots
-- [x] Droplets snapshots pruning
-- [x] Volume snapshots
-- [x] Volume snapshots pruning
-- [ ] Slack alerting
-- [ ] Add droplets and volumes by tag
-
 ## Requirements
 - Python ^3.6
 - A DigitalOcean account
@@ -84,10 +75,27 @@ docker run \
   tomochain:goutte
 ```
 
-## Automating
-You can easily automate it via cron job or by leveraging free CI tools like Travis.
-We provided and example travis configuration in `travis.example.yml`.
+## Automating with Travis
+You can easily automate it via cron job but the easiest way would be by leveraging free CI tools like Travis.
 
-You just need to set the environment variables on the Travis website and schedule it with the frequency of your backups.
+### 1. Create a backup repo
+You can create a repo which contains your `goutte.toml` configuration and the travis file `.travis.yml` we provide (`.travis.example.yml`) :
 
-TODO
+```yml
+language: python
+python: 3.6
+
+install:
+  - pip install goutte
+
+script:
+  - goutte # Don't forget to set $GOUTTE_DO_TOKEN in Travis config
+```
+
+### 2. Travis
+Enable the repo on Travis and then change this in the configuration:
+- Add the environment variable GOUTTE_DO_TOKEN with the value of your DigitalOcean API key
+- Enable daily cron job
+
+### 3. ???
+You're good to go, goutte will run everyday and take care of the snapshots.
