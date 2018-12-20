@@ -88,10 +88,18 @@ install:
   - pip install goutte
 
 script:
-  - goutte # Don't forget to set $GOUTTE_DO_TOKEN in Travis config
+  - goutte goutte.toml # Don't forget to set GOUTTE_DO_TOKEN in Travis config
 ```
 
 2. Enable the repo in Travis and then go to the configuration
 3. Add the environment variable GOUTTE_DO_TOKEN with the value of your DigitalOcean API key
 4. Enable daily cron job
 5. You're good to go, goutte will run everyday and take care of the snapshots.
+
+**Note**: You can have different retentions for different volumes by having multiple configurations.
+```yml
+# ...
+script:
+  - goutte 10days.toml
+  - goutte 1day.toml
+```
