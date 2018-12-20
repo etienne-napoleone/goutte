@@ -72,7 +72,7 @@ def _process_droplets(conf: Dict[str, Union[Dict[str, str], str]],
             log.warn('No matching droplet found')
     except KeyError:
         droplets = None
-    except InterruptedError:
+    except KeyboardInterrupt:
         log.critical('Received interuption signal')
         sys.exit(1)
 
@@ -94,7 +94,7 @@ def _process_volumes(conf: Dict[str, Union[Dict[str, str], str]],
             log.warn('No matching volume found')
     except KeyError:
         volumes = None
-    except InterruptedError:
+    except KeyboardInterrupt:
         log.critical('Received interuption signal')
         sys.exit(1)
 
