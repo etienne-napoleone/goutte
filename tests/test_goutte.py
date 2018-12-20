@@ -9,12 +9,36 @@ def test_version():
     assert __version__ == '1.0.0'
 
 
-def test_get_volumes(caplog, monkeypatch):
+def test_prune_droplet_snapshots(caplog, monkeypatch):
+    monkeypatch.setattr(digitalocean, 'Snapshot', mock.Snapshot)
+    droplet = mock.Droplet(name='testdroplet', snapshot_ids=['3', '2', '1'])
+    with caplog.at_level('INFO'):
+        main._prune_droplet_snapshots(droplet, 1)
+        assert len(caplog.records) == 2
+        for record in caplog.records:
+            assert record.levelname == 'INFO'
+            assert "goutte-snapshot3" not in record.message
+
+
+def test_prune_droplet_snapshots_goutte_prefix_only(caplog, monkeypatch):
+    monkeypatch.setattr(digitalocean, 'Snapshot', mock.Snapshot)
+    droplet = mock.Droplet(name='testdroplet', snapshot_ids=['1337', '2', '1'])
+    with caplog.at_level('INFO'):
+        main._prune_droplet_snapshots(droplet, 1)
+        assert len(caplog.records) == 1
+        for record in caplog.records:
+            assert record.levelname == 'INFO'
+            assert "snapshot1337" not in record.message
+            assert "goutte-snapshot2" not in record.message
+
+
+def test_get_volumes(caplog):
     exceptions = [
         digitalocean.baseapi.TokenError,
         digitalocean.baseapi.DataReadError,
         digitalocean.baseapi.JSONReadError,
-        digitalocean.baseapi.NotFoundError
+        digitalocean.baseapi.NotFoundError,
+        Exception,
     ]
     for exception in exceptions:
         volume = mock.Volume(name='testvol', throw=exception)
@@ -23,11 +47,6 @@ def test_get_volumes(caplog, monkeypatch):
             assert len(caplog.records) == 1
             assert caplog.records[0].levelname == 'ERROR'
             caplog.clear()
-
-
-def test_get_volumes_raise(monkeypatch):
-    monkeypatch.setattr(digitalocean, 'Manager', mock.Manager)
-    assert 'testvol' in main._get_volumes(['testvol'])[0].name
 
 
 def test_snapshot_volume(caplog):
@@ -44,7 +63,8 @@ def test_snapshot_volume_raise(caplog):
         digitalocean.baseapi.TokenError,
         digitalocean.baseapi.DataReadError,
         digitalocean.baseapi.JSONReadError,
-        digitalocean.baseapi.NotFoundError
+        digitalocean.baseapi.NotFoundError,
+        Exception,
     ]
     for exception in exceptions:
         volume = mock.Volume(name='testvol', throw=exception)
@@ -84,7 +104,8 @@ def test_prune_volume_snapshots_raise(caplog):
         digitalocean.baseapi.TokenError,
         digitalocean.baseapi.DataReadError,
         digitalocean.baseapi.JSONReadError,
-        digitalocean.baseapi.NotFoundError
+        digitalocean.baseapi.NotFoundError,
+        Exception,
     ]
     for exception in exceptions:
         volume = mock.Volume(name='testvol', throw=exception)

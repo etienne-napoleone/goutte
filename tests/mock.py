@@ -1,10 +1,20 @@
 class Snapshot:
-    def __init__(self, created_at=None, name=None):
+    def __init__(self, created_at=None, name=None, id=None):
         self.created_at = created_at
         self.name = name
+        self.id = id
 
     def destroy(self):
         pass
+
+    @staticmethod
+    def get_object(api_token=None, snapshot_id=None):
+        if snapshot_id == '1337':
+            return Snapshot(name=f'snapshot{snapshot_id}', id=snapshot_id,
+                            created_at=f'{snapshot_id}')
+        else:
+            return Snapshot(name=f'goutte-snapshot{snapshot_id}',
+                            id=snapshot_id, created_at=f'{snapshot_id}')
 
 
 class Volume:
@@ -21,6 +31,12 @@ class Volume:
     def snapshot(self, name):
         if self.throw:
             raise self.throw
+
+
+class Droplet:
+    def __init__(self, name=None, snapshot_ids=None):
+        self.name = name
+        self.snapshot_ids = snapshot_ids
 
 
 class Manager:
