@@ -10,8 +10,8 @@ install:
 
 script:
   - flake8 .
-  # - coverage run --source tmn -m pytest -v
-  # - coverage report
+  - coverage run --source tmn -m pytest -v
+  - coverage report
   # - coveralls
 
 before_deploy:
