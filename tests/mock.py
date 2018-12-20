@@ -21,3 +21,13 @@ class Volume:
     def snapshot(self, name):
         if self.throw:
             raise self.throw
+
+
+class Manager:
+    def __init__(self, token=None):
+        self.token = token
+
+    def get_all_volumes(self):
+        return [
+            Volume(name='testvol')
+        ]
