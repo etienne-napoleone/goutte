@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Dict, List
+from typing import Dict, List, Union
 import sys
 import uuid
 
@@ -17,9 +17,12 @@ token = None
 @click.command(help='DigitalOcean snapshot automation.')
 @click.argument('config', envvar='GOUTTE_CONFIG', type=click.File('r'))
 @click.argument('do_token', envvar='GOUTTE_DO_TOKEN')
+@click.option('--only', type=click.Choice(['snapshot', 'prune']),
+              help='Only snapshot or only prune')
 @click.option('--debug', is_flag=True, help='Enable debug logging')
 @click.version_option(version=__version__)
-def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
+def entrypoint(config: click.File, do_token: str, only: str,
+               debug: bool) -> None:
     """Command line interface entrypoint"""
     global token
     if debug:
@@ -28,36 +31,10 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
     token = do_token
     conf = _load_config(config)
     log.debug(f'Retention is set to {conf["retention"]} snapshots')
-    try:
-        droplets = _get_droplets(conf['droplets']['names'])
-        if droplets:
-            log.debug(f'Found {len(droplets)} matching droplets')
-            for droplet in droplets:
-                log.debug(f'Processing {droplet.name}')
-                _snapshot_droplet(droplet)
-                _prune_droplet_snapshots(droplet, conf['retention'])
-        else:
-            log.warn('No matching droplet found')
-    except KeyError:
-        droplets = None
-    except InterruptedError:
-        log.critical('Received interuption signal')
-        sys.exit(1)
-    try:
-        volumes = _get_volumes(conf['volumes']['names'])
-        if volumes:
-            log.debug(f'Found {len(volumes)} matching volumes')
-            for volume in volumes:
-                log.debug(f'Processing {volume.name}')
-                _snapshot_volume(volume)
-                _prune_volume_snapshots(volume, conf['retention'])
-        else:
-            log.warn('No matching volume found')
-    except KeyError:
-        volumes = None
-    except InterruptedError:
-        log.critical('Received interuption signal')
-        sys.exit(1)
+    if only:
+        log.debug(f'Will only {only}')
+    _process_droplets(conf, only)
+    _process_volumes(conf, only)
 
 
 def _load_config(config: click.File) -> Dict[str, Dict]:
@@ -77,6 +54,50 @@ def _load_config(config: click.File) -> Dict[str, Dict]:
         sys.exit(1)
     except KeyError as e:
         log.critical('Malformated configuration: {} is missing'.format(e))
+        sys.exit(1)
+
+
+def _process_droplets(conf: Dict[str, Union[Dict[str, str], str]],
+                      only: str) -> None:
+    """Execute snapshot and pruning on the droplets"""
+    try:
+        droplets = _get_droplets(conf['droplets']['names'])
+        if droplets:
+            log.debug(f'Found {len(droplets)} matching droplets')
+            for droplet in droplets:
+                log.debug(f'Processing {droplet.name}')
+                if only == 'snapshot' or not only:
+                    _snapshot_droplet(droplet)
+                if only == 'prune' or not only:
+                    _prune_droplet_snapshots(droplet, conf['retention'])
+        else:
+            log.warn('No matching droplet found')
+    except KeyError:
+        droplets = None
+    except KeyboardInterrupt:
+        log.critical('Received interuption signal')
+        sys.exit(1)
+
+
+def _process_volumes(conf: Dict[str, Union[Dict[str, str], str]],
+                     only: str) -> None:
+    """Execute snapshot and pruning on the volumes"""
+    try:
+        volumes = _get_volumes(conf['volumes']['names'])
+        if volumes:
+            log.debug(f'Found {len(volumes)} matching volumes')
+            for volume in volumes:
+                log.debug(f'Processing {volume.name}')
+                if only == 'snapshot' or not only:
+                    _snapshot_volume(volume)
+                if only == 'prune' or not only:
+                    _prune_volume_snapshots(volume, conf['retention'])
+        else:
+            log.warn('No matching volume found')
+    except KeyError:
+        volumes = None
+    except KeyboardInterrupt:
+        log.critical('Received interuption signal')
         sys.exit(1)
 
 
