@@ -66,10 +66,10 @@ def _process_droplets(conf: Dict[str, Union[Dict[str, str], str]],
             log.debug(f'Found {len(droplets)} matching droplets')
             for droplet in droplets:
                 log.debug(f'Processing {droplet.name}')
-                if only == 'snapshot' or not only:
-                    _snapshot_droplet(droplet)
                 if only == 'prune' or not only:
                     _prune_droplet_snapshots(droplet, conf['retention'])
+                if only == 'snapshot' or not only:
+                    _snapshot_droplet(droplet)
         else:
             log.warn('No matching droplet found')
     except KeyError:
@@ -88,10 +88,10 @@ def _process_volumes(conf: Dict[str, Union[Dict[str, str], str]],
             log.debug(f'Found {len(volumes)} matching volumes')
             for volume in volumes:
                 log.debug(f'Processing {volume.name}')
-                if only == 'snapshot' or not only:
-                    _snapshot_volume(volume)
                 if only == 'prune' or not only:
                     _prune_volume_snapshots(volume, conf['retention'])
+                if only == 'snapshot' or not only:
+                    _snapshot_volume(volume)
         else:
             log.warn('No matching volume found')
     except KeyError:
@@ -144,11 +144,13 @@ def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
                              retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
     try:
-        snapshots = _order_snapshots([
+        all_snapshots = _order_snapshots([
             digitalocean.Snapshot.get_object(
                 api_token=token, snapshot_id=snapshot_id
              ) for snapshot_id in droplet.snapshot_ids
         ])
+        snapshots = [snapshot for snapshot in all_snapshots
+                     if snapshot.name[:6] == 'goutte']
         if len(snapshots) > retention:
             log.debug(f'{droplet.name} - Exceed retention policy by '
                       f'{len(snapshots) - retention}')
@@ -210,7 +212,9 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
                             retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
     try:
-        snapshots = _order_snapshots(volume.get_snapshots())
+        all_snapshots = _order_snapshots(volume.get_snapshots())
+        snapshots = [snapshot for snapshot in all_snapshots
+                     if snapshot.name[:6] == 'goutte']
         if len(snapshots) > retention:
             log.debug(f'{volume.name} - Exceed retention policy by '
                       f'{len(snapshots) - retention}')
