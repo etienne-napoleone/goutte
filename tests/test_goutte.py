@@ -1,3 +1,4 @@
+from click.testing import CliRunner
 import digitalocean
 import pytest
 import toml
@@ -9,6 +10,71 @@ from tests import mock
 
 def test_version():
     assert __version__ == '1.0.0'
+
+
+def test_entrypoint(caplog, monkeypatch):
+    def load_config(*args):
+        return {'retention': 2}
+    monkeypatch.setattr(main, '_load_config', load_config)
+    monkeypatch.setattr(main, '_process_droplets', mock.nothing)
+    monkeypatch.setattr(main, '_process_volumes', mock.nothing)
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        with caplog.at_level('INFO'):
+            with open('test.toml', 'w') as f:
+                f.write('Hello World!')
+            result = runner.invoke(main.entrypoint, [
+                'test.toml',
+                'token123',
+            ])
+            assert result.exit_code == 0
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == 'INFO'
+
+
+def test_entrypoint_debug(caplog, monkeypatch):
+    def load_config(*args):
+        return {'retention': 2}
+    monkeypatch.setattr(main, '_load_config', load_config)
+    monkeypatch.setattr(main, '_process_droplets', mock.nothing)
+    monkeypatch.setattr(main, '_process_volumes', mock.nothing)
+    monkeypatch.setattr(main.log, 'setLevel', mock.nothing)
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        with caplog.at_level('INFO'):
+            with open('test.toml', 'w') as f:
+                f.write('Hello World!')
+            result = runner.invoke(main.entrypoint, [
+                'test.toml',
+                'token123',
+                '--debug',
+            ])
+            assert result.exit_code == 0
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == 'INFO'
+
+
+def test_entrypoint_only(caplog, monkeypatch):
+    def load_config(*args):
+        return {'retention': 2}
+    monkeypatch.setattr(main, '_load_config', load_config)
+    monkeypatch.setattr(main, '_process_droplets', mock.nothing)
+    monkeypatch.setattr(main, '_process_volumes', mock.nothing)
+    monkeypatch.setattr(main.log, 'setLevel', mock.nothing)
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        with caplog.at_level('INFO'):
+            with open('test.toml', 'w') as f:
+                f.write('Hello World!')
+            result = runner.invoke(main.entrypoint, [
+                'test.toml',
+                'token123',
+                '--debug',
+                '--only', 'prune',
+            ])
+            assert result.exit_code == 0
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == 'INFO'
 
 
 def test_load_config(monkeypatch):
