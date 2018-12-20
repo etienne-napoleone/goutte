@@ -4,7 +4,7 @@ class Snapshot:
         self.name = name
 
     def destroy(self):
-        print(self.name)
+        pass
 
 
 class Volume:
@@ -17,3 +17,7 @@ class Volume:
         if self.throw:
             raise self.throw
         return self.snapshots
+
+    def snapshot(self, name):
+        if self.throw:
+            raise self.throw

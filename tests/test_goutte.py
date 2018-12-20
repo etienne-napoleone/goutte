@@ -9,28 +9,37 @@ def test_version():
     assert __version__ == '1.0.0'
 
 
-def test_prune_droplet_snapshots(capsys):
+def test_snapshot_volume(caplog):
+    volume = mock.Volume('testvol')
+    with caplog.at_level('INFO'):
+        main._snapshot_volume(volume)
+        assert len(caplog.records) == 1
+        assert caplog.records[0].levelname == 'INFO'
+        assert 'testvol' in caplog.records[0].message
+
+
+def test_prune_droplet_snapshots(caplog):
     volume = mock.Volume('testvol', [
         mock.Snapshot(name='goutte-snapshot1', created_at='2018'),
         mock.Snapshot(name='goutte-snapshot2', created_at='2017'),
         mock.Snapshot(name='goutte-snapshot3', created_at='2016'),
     ])
-    main._prune_volume_snapshots(volume, 1)
-    deleted = capsys.readouterr()
-    assert "goutte-snapshot1" not in deleted.out
-    assert "goutte-snapshot2" in deleted.out
-    assert "goutte-snapshot3" in deleted.out
+    with caplog.at_level('INFO'):
+        main._prune_volume_snapshots(volume, 1)
+        assert len(caplog.records) == 2
+        for record in caplog.records:
+            assert record.levelname == 'INFO'
+            assert "goutte-snapshot1" not in record.message
 
 
-def test_prune_droplet_snapshots_goutte_prefix_only(capsys):
+def test_prune_droplet_snapshots_goutte_prefix_only(caplog):
     volume = mock.Volume('testvol', [
         mock.Snapshot(name='snapshot1', created_at='2018'),
         mock.Snapshot(name='snapshot2', created_at='2017'),
     ])
-    main._prune_volume_snapshots(volume, 1)
-    deleted = capsys.readouterr()
-    assert "snapshot1" not in deleted.out
-    assert "snapshot2" not in deleted.out
+    with caplog.at_level('INFO'):
+        main._prune_volume_snapshots(volume, 1)
+        assert len(caplog.records) == 0
 
 
 def test_prune_droplet_snapshots_goutte_raise(caplog):
@@ -42,8 +51,11 @@ def test_prune_droplet_snapshots_goutte_raise(caplog):
     ]
     for exception in exceptions:
         volume = mock.Volume(name='testvol', throw=exception)
-        with caplog.at_level('ERROR'):
+        with caplog.at_level('INFO'):
             main._prune_volume_snapshots(volume, 1)
+            assert len(caplog.records) == 1
+            assert caplog.records[0].levelname == 'ERROR'
+            caplog.clear()
 
 
 def test_order_snapshots():
