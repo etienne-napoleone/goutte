@@ -31,23 +31,7 @@ def entrypoint(config: click.File, do_token: str, only: str,
     token = do_token
     conf = _load_config(config)
     log.debug(f'Retention is set to {conf["retention"]} snapshots')
-    try:
-        droplets = _get_droplets(conf['droplets']['names'])
-        if droplets:
-            log.debug(f'Found {len(droplets)} matching droplets')
-            for droplet in droplets:
-                log.debug(f'Processing {droplet.name}')
-                if only == 'snapshot' or not only:
-                    _snapshot_droplet(droplet)
-                if only == 'prune' or not only:
-                    _prune_droplet_snapshots(droplet, conf['retention'])
-        else:
-            log.warn('No matching droplet found')
-    except KeyError:
-        droplets = None
-    except InterruptedError:
-        log.critical('Received interuption signal')
-        sys.exit(1)
+    _process_droplets(conf, only)
     try:
         volumes = _get_volumes(conf['volumes']['names'])
         if volumes:
@@ -87,10 +71,26 @@ def _load_config(config: click.File) -> Dict[str, Dict]:
         sys.exit(1)
 
 
-def _process_droplets(conf: Dict[str, Union[Dict[str, str], str]]) -> None:
+def _process_droplets(conf: Dict[str, Union[Dict[str, str], str]],
+                      only: str) -> None:
     """Execute snapshot and pruning on the droplets"""
-
-
+    try:
+        droplets = _get_droplets(conf['droplets']['names'])
+        if droplets:
+            log.debug(f'Found {len(droplets)} matching droplets')
+            for droplet in droplets:
+                log.debug(f'Processing {droplet.name}')
+                if only == 'snapshot' or not only:
+                    _snapshot_droplet(droplet)
+                if only == 'prune' or not only:
+                    _prune_droplet_snapshots(droplet, conf['retention'])
+        else:
+            log.warn('No matching droplet found')
+    except KeyError:
+        droplets = None
+    except InterruptedError:
+        log.critical('Received interuption signal')
+        sys.exit(1)
 
 
 def _get_droplets(names: List[str]) -> List[digitalocean.Droplet]:
