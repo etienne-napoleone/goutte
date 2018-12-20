@@ -32,23 +32,7 @@ def entrypoint(config: click.File, do_token: str, only: str,
     conf = _load_config(config)
     log.debug(f'Retention is set to {conf["retention"]} snapshots')
     _process_droplets(conf, only)
-    try:
-        volumes = _get_volumes(conf['volumes']['names'])
-        if volumes:
-            log.debug(f'Found {len(volumes)} matching volumes')
-            for volume in volumes:
-                log.debug(f'Processing {volume.name}')
-                if only == 'snapshot' or not only:
-                    _snapshot_volume(volume)
-                if only == 'prune' or not only:
-                    _prune_volume_snapshots(volume, conf['retention'])
-        else:
-            log.warn('No matching volume found')
-    except KeyError:
-        volumes = None
-    except InterruptedError:
-        log.critical('Received interuption signal')
-        sys.exit(1)
+    _process_volumes(conf, only)
 
 
 def _load_config(config: click.File) -> Dict[str, Dict]:
@@ -88,6 +72,28 @@ def _process_droplets(conf: Dict[str, Union[Dict[str, str], str]],
             log.warn('No matching droplet found')
     except KeyError:
         droplets = None
+    except InterruptedError:
+        log.critical('Received interuption signal')
+        sys.exit(1)
+
+
+def _process_volumes(conf: Dict[str, Union[Dict[str, str], str]],
+                     only: str) -> None:
+    """Execute snapshot and pruning on the volumes"""
+    try:
+        volumes = _get_volumes(conf['volumes']['names'])
+        if volumes:
+            log.debug(f'Found {len(volumes)} matching volumes')
+            for volume in volumes:
+                log.debug(f'Processing {volume.name}')
+                if only == 'snapshot' or not only:
+                    _snapshot_volume(volume)
+                if only == 'prune' or not only:
+                    _prune_volume_snapshots(volume, conf['retention'])
+        else:
+            log.warn('No matching volume found')
+    except KeyError:
+        volumes = None
     except InterruptedError:
         log.critical('Received interuption signal')
         sys.exit(1)
