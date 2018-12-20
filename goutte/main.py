@@ -30,13 +30,6 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
     log.debug(f'Retention is set to {conf["retention"]} snapshots')
     try:
         droplets = _get_droplets(conf['droplets']['names'])
-    except KeyError:
-        droplets = None
-    try:
-        volumes = _get_volumes(conf['volumes']['names'])
-    except KeyError:
-        volumes = None
-    try:
         if droplets:
             log.debug(f'Found {len(droplets)} matching droplets')
             for droplet in droplets:
@@ -45,6 +38,13 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
                 _prune_droplet_snapshots(droplet, conf['retention'])
         else:
             log.warn('No matching droplet found')
+    except KeyError:
+        droplets = None
+    except InterruptedError:
+        log.critical('Received interuption signal')
+        sys.exit(1)
+    try:
+        volumes = _get_volumes(conf['volumes']['names'])
         if volumes:
             log.debug(f'Found {len(volumes)} matching volumes')
             for volume in volumes:
@@ -53,6 +53,8 @@ def entrypoint(config: click.File, do_token: str, debug: bool) -> None:
                 _prune_volume_snapshots(volume, conf['retention'])
         else:
             log.warn('No matching volume found')
+    except KeyError:
+        volumes = None
     except InterruptedError:
         log.critical('Received interuption signal')
         sys.exit(1)
@@ -63,13 +65,18 @@ def _load_config(config: click.File) -> Dict[str, Dict]:
     try:
         # TODO check minimum validity (retention)
         log.debug('Loading config from {}'.format(config.name))
-        return toml.load(config)
+        config = toml.load(config)
+        assert config['retention']
+        return config
     except TypeError as e:
         log.critical('Could not read conf {}: {}'.format(config.name, e))
         sys.exit(1)
     except toml.TomlDecodeError as e:
         log.critical('Could not parse toml in config from {}: {}'
                      .format(config.name, e))
+        sys.exit(1)
+    except KeyError as e:
+        log.critical('Malformated configuration: {} is missing'.format(e))
         sys.exit(1)
 
 
@@ -99,7 +106,7 @@ def _snapshot_droplet(droplet: digitalocean.Droplet) -> None:
         uuid.uuid4().hex[:5])
     try:
         droplet.take_snapshot(name)
-        log.info(f'[{droplet.name}] Snapshot ({name})')
+        log.info(f'{droplet.name} - Snapshot ({name})')
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}')
     except digitalocean.baseapi.DataReadError as e:
@@ -116,14 +123,16 @@ def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
                              retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
     try:
-        snapshots = [digitalocean.Snapshot.get_object(api_token=token,
-                                                      snapshot_id=snapshot_id)
-                     for snapshot_id in droplet.snapshot_ids]
+        snapshots = _order_snapshots([
+            digitalocean.Snapshot.get_object(
+                api_token=token, snapshot_id=snapshot_id
+             ) for snapshot_id in droplet.snapshot_ids
+        ])
         if len(snapshots) > retention:
-            log.debug(f'[{droplet.name}] Exceed retention policy by '
+            log.debug(f'{droplet.name} - Exceed retention policy by '
                       f'{len(snapshots) - retention}')
             for snapshot in snapshots[:len(snapshots)-retention]:
-                log.info(f'[{droplet.name}] Prune ({snapshot.name})')
+                log.info(f'{droplet.name} - Prune ({snapshot.name})')
                 snapshot.destroy()
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}.')
@@ -163,7 +172,7 @@ def _snapshot_volume(volume: digitalocean.Volume) -> None:
         uuid.uuid4().hex[:5])
     try:
         volume.snapshot(name)
-        log.info(f'[{volume.name}] Snapshot ({name})')
+        log.info(f'{volume.name} - Snapshot ({name})')
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}')
     except digitalocean.baseapi.DataReadError as e:
@@ -180,12 +189,12 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
                             retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
     try:
-        snapshots = [volume.get_snapshots()]
+        snapshots = _order_snapshots(volume.get_snapshots())
         if len(snapshots) > retention:
-            log.debug(f'[{volume.name}] Exceed retention policy by '
+            log.debug(f'{volume.name} - Exceed retention policy by '
                       f'{len(snapshots) - retention}')
             for snapshot in snapshots[:len(snapshots)-retention]:
-                log.info(f'[{volume.name}] Prune ({snapshot.name})')
+                log.info(f'{volume.name} - Prune ({snapshot.name})')
                 snapshot.destroy()
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}.')
@@ -197,3 +206,9 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
         log.error(f'Ressource not found: {e}.')
     except Exception as e:
         log.error(f'Unexpected exception: {e}.')
+
+
+def _order_snapshots(snapshots: List[digitalocean.Snapshot]
+                     ) -> List[digitalocean.Snapshot]:
+    """Order snapshots by creation date"""
+    return sorted(snapshots, key=lambda x: x.created_at)

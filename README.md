@@ -12,6 +12,7 @@ That's why we developed a simple script which you can run with cron jobs or in C
 - [x] Volume snapshots pruning
 - [ ] Per item retention configuration
 - [ ] Slack alerting
+- [ ] Add droplets and volumes by tag
 
 ## Requirements
 - Python ^3.6
