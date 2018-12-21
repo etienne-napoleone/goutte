@@ -109,3 +109,5 @@ script:
   - goutte 10days.toml
   - goutte 1day.toml
 ```
+
+You can see how we set it up for ourself [here](https://github.com/tomochain/backups).
