@@ -1,8 +1,14 @@
-# goutte
+# goutte <a href="https://travis-ci.org/tomochain/goutte"><img align="right" src="https://travis-ci.org/tomochain/goutte.svg?branch=develop"></a>
 DigitalOcean doesn't propose any way of automating snapshots.
 There are [some SaaS](https://snapshooter.io/) that can take care of it but paying to execute some API requests seemed a bit off.
 
 That's why we developed a simple script which you can run with cron jobs or in CI services like Travis for free.
+
+It includes:
+- Snapshoting droplets
+- Snapshoting volumes
+- Retention policy
+- Pruning snapshots
 
 ## Requirements
 - Python ^3.6
