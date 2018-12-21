@@ -2,7 +2,7 @@
 DigitalOcean doesn't propose any way of automating snapshots.
 There are [some SaaS](https://snapshooter.io/) that can take care of it but paying to execute some API requests seemed a bit off.
 
-That's why we developed a simple script which you can run with cron jobs or in CI services like Travis for free.
+That's why we developed a simple script which can run with cron jobs or in CI services like Travis for free.
 We use it daily to manage [our backups](https://github.com/tomochain/backups).
 
 It includes:
