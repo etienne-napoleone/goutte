@@ -11,8 +11,8 @@ install:
 script:
   - flake8 .
   - coverage run --source goutte -m pytest -v
-  # - coverage report
-  # - coveralls
+  - coverage report
+  - coveralls
 
 before_deploy:
   - poetry build
@@ -32,3 +32,5 @@ deploy:
     on:
       tags: true
       python: 3.6
+after_deploy:
+  - curl -XPOST $DOCKER_HOOK
