@@ -12,6 +12,7 @@ from goutte import __version__
 
 log = colorlog.getLogger(__name__)
 token = None
+error = 0
 
 
 @click.command(help='DigitalOcean snapshots automation.')
@@ -35,6 +36,7 @@ def entrypoint(config: click.File, do_token: str, only: str,
         log.debug(f'Will only {only}')
     _process_droplets(conf, only)
     _process_volumes(conf, only)
+    sys.exit(error)
 
 
 def _load_config(config: click.File) -> Dict[str, Dict]:
@@ -121,6 +123,7 @@ def _get_droplets(names: List[str]) -> List[digitalocean.Droplet]:
 
 def _snapshot_droplet(droplet: digitalocean.Droplet) -> None:
     """Take a snapshot of a given droplet"""
+    global error
     name = 'goutte-{}-{}-{}'.format(
         droplet.name,
         date.today().strftime('%Y%m%d'),
@@ -129,20 +132,26 @@ def _snapshot_droplet(droplet: digitalocean.Droplet) -> None:
         droplet.take_snapshot(name)
         log.info(f'{droplet.name} - Snapshot ({name})')
     except digitalocean.baseapi.TokenError as e:
-        log.error(f'Token not valid: {e}')
+        log.error(f'Token not valid: {e}.')
+        error = 1
     except digitalocean.baseapi.DataReadError as e:
-        log.error(f'Could not read response: {e}')
+        log.error(f'Could not read response: {e}.')
+        error = 1
     except digitalocean.baseapi.JSONReadError as e:
-        log.error(f'Could not parse json: {e}')
+        log.error(f'Could not parse json: {e}.')
+        error = 1
     except digitalocean.baseapi.NotFoundError as e:
-        log.error(f'Ressource not found: {e}')
+        log.error(f'Ressource not found: {e}.')
+        error = 1
     except Exception as e:
-        log.error(f'Unexpected exception: {e}')
+        log.error(f'Unexpected exception: {e}.')
+        error = 1
 
 
 def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
                              retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
+    global error
     try:
         all_snapshots = _order_snapshots([
             digitalocean.Snapshot.get_object(
@@ -159,14 +168,19 @@ def _prune_droplet_snapshots(droplet: digitalocean.Droplet,
                 snapshot.destroy()
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}.')
+        error = 1
     except digitalocean.baseapi.DataReadError as e:
         log.error(f'Could not read response: {e}.')
+        error = 1
     except digitalocean.baseapi.JSONReadError as e:
         log.error(f'Could not parse json: {e}.')
+        error = 1
     except digitalocean.baseapi.NotFoundError as e:
         log.error(f'Ressource not found: {e}.')
+        error = 1
     except Exception as e:
         log.error(f'Unexpected exception: {e}.')
+        error = 1
 
 
 def _get_volumes(names: List[str]) -> List[digitalocean.Volume]:
@@ -189,6 +203,7 @@ def _get_volumes(names: List[str]) -> List[digitalocean.Volume]:
 
 def _snapshot_volume(volume: digitalocean.Volume) -> None:
     """Take a snapshot of a given volume"""
+    global error
     name = 'goutte-{}-{}-{}'.format(
         volume.name,
         date.today().strftime('%Y%m%d'),
@@ -197,20 +212,26 @@ def _snapshot_volume(volume: digitalocean.Volume) -> None:
         volume.snapshot(name)
         log.info(f'{volume.name} - Snapshot ({name})')
     except digitalocean.baseapi.TokenError as e:
-        log.error(f'Token not valid: {e}')
+        log.error(f'Token not valid: {e}.')
+        error = 1
     except digitalocean.baseapi.DataReadError as e:
-        log.error(f'Could not read response: {e}')
+        log.error(f'Could not read response: {e}.')
+        error = 1
     except digitalocean.baseapi.JSONReadError as e:
-        log.error(f'Could not parse json: {e}')
+        log.error(f'Could not parse json: {e}.')
+        error = 1
     except digitalocean.baseapi.NotFoundError as e:
-        log.error(f'Ressource not found: {e}')
+        log.error(f'Ressource not found: {e}.')
+        error = 1
     except Exception as e:
-        log.error(f'Unexpected exception: {e}')
+        log.error(f'Unexpected exception: {e}.')
+        error = 1
 
 
 def _prune_volume_snapshots(volume: digitalocean.Volume,
                             retention: int) -> None:
     """Prune goutte snapshots if tmore than the configured retention time"""
+    global error
     try:
         all_snapshots = _order_snapshots(volume.get_snapshots())
         snapshots = [snapshot for snapshot in all_snapshots
@@ -223,14 +244,19 @@ def _prune_volume_snapshots(volume: digitalocean.Volume,
                 snapshot.destroy()
     except digitalocean.baseapi.TokenError as e:
         log.error(f'Token not valid: {e}.')
+        error = 1
     except digitalocean.baseapi.DataReadError as e:
         log.error(f'Could not read response: {e}.')
+        error = 1
     except digitalocean.baseapi.JSONReadError as e:
         log.error(f'Could not parse json: {e}.')
+        error = 1
     except digitalocean.baseapi.NotFoundError as e:
         log.error(f'Ressource not found: {e}.')
+        error = 1
     except Exception as e:
         log.error(f'Unexpected exception: {e}.')
+        error = 1
 
 
 def _order_snapshots(snapshots: List[digitalocean.Snapshot]
