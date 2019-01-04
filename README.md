@@ -66,7 +66,7 @@ Options:
 Running "snapshot only" for a configuration file containing one droplet and one volume:
 ```bash
 $ goutte goutte.toml $do_token --only snapshot
-13:32:48 - INFO - Starting goutte v1.0.0
+13:32:48 - INFO - Starting goutte v1.0.1
 13:32:52 - INFO - sgp1-website-01 - Snapshot (goutte-sgp1-website-01-20181220-56bde)
 13:32:59 - INFO - sgp1-mariadb-01 - Snapshot (goutte-sgp1-mariadb-01-20181220-3673d)
 ```
