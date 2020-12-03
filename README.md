@@ -79,7 +79,7 @@ It will read by default the configuration under `/goutte/goutte.toml`
 docker run \
   -e GOUTTE_DO_TOKEN=${do_token} \
   -v $(pwd)/goutte.toml:/goutte/goutte.toml \
-  tomochain:goutte
+  tomochain/goutte
 ```
 
 ## Automating with Travis
