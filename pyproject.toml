@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "goutte"
-version = "1.0.1"
-description = "DigitalOcean snapshot automation service"
+version = "2.0.0"
+description = "DigitalOcean snapshot automation"
 readme = "README.md"
 license = "GPL-3.0+"
 homepage = "https://github.com/tomochain/goutte"
@@ -10,17 +10,18 @@ keywords = ["digitalocean", "do", "snapshot", "snapshots", "backup"]
 authors = ["etienne-napoleone <etienne@tomochain.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.5"
-python-digitalocean = "^1.14"
+python = "^3.6"
+python-digitalocean = "^1.16"
 colorlog = "^3.1"
-toml = "^0.10.0"
-click = "^7.0"
+toml = "^0.10.2"
+click = "^7.1.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
 flake8 = "^3.6"
 coveralls = "^1.5"
-
+mypy = "^0.800"
+black = "^20.8b1"
 
 [tool.poetry.scripts]
 goutte = "goutte.main:entrypoint"

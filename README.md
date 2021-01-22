@@ -47,7 +47,7 @@ names = [          # Array of volumes you want to snapshot
 Goutte takes two arguments which can also be set via environment variables:
 
 | # | Help     | Description                         | Environment variable |
-| - | -------- | ----------------------------------- | -------------------- |
+|---|----------|-------------------------------------|----------------------|
 | 1 | CONFIG   | Path to the toml configuration file | `GOUTTE_CONFIG`      |
 | 2 | DO_TOKEN | Your DigitalOcean API token         | `GOUTTE_DO_TOKEN`    |
 

@@ -1,5 +1,7 @@
+.vscode
+
 # Goutte
-goutte.toml
+goutte.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
