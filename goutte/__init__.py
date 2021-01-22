@@ -10,6 +10,6 @@ handler.setFormatter(
         "%H:%M:%S",
     )
 )
-logger = colorlog.getLogger(__name__)
+logger = colorlog.getLogger()
 logger.setLevel("INFO")
 logger.addHandler(handler)

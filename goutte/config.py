@@ -40,16 +40,16 @@ def get(path: str) -> dict:
         with open(path) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
     except FileNotFoundError:
-        log.fatal("No configuration file found")
+        log.fatal("no configuration file found")
         sys.exit(1)
     except PermissionError:
-        log.fatal("Access designed")
+        log.fatal("access designed")
         sys.exit(1)
     except yaml.YAMLError:
-        log.fatal("Malformated yml configuration")
+        log.fatal("malformated yml configuration")
         sys.exit(1)
     except (IOError, IsADirectoryError):
-        log.fatal("Error while reading dx configuration")
+        log.fatal("error while reading dx configuration")
         sys.exit(1)
     try:
         yamale.validate(
