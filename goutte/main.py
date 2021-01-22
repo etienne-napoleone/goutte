@@ -3,6 +3,7 @@ import colorlog
 
 from goutte import config
 from goutte import __version__
+from goutte.do import DigitalOcean
 
 log = colorlog.getLogger(__name__)
 
@@ -26,4 +27,14 @@ def entrypoint(config_path: str, do_token: str, debug: bool) -> None:
     if debug:
         colorlog.getLogger().setLevel("DEBUG")
         log.debug("running with debug logging")
-    config.get(config_path)
+    c = config.get(config_path)
+    droplet_config = c["targets"].get("droplets", {})
+    volume_config = c["targets"].get("volumes", {})
+    do = DigitalOcean(token=do_token)
+    droplets = do.get_droplets(
+        names=droplet_config.get("names", []), tags=droplet_config.get("tags", [])
+    )
+    volumes = do.get_volumes(names=volume_config.get("names", []))
+    log.info(
+        f"found {len(droplets)} droplet(s) and {len(volumes)} volume(s) to snapshot"
+    )
