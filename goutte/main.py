@@ -15,7 +15,7 @@ log = colorlog.getLogger(__name__)
     envvar="GOUTTE_CONFIG_PATH",
     type=click.Path(dir_okay=False, allow_dash=True),
     default="goutte.yml",
-    help="Path to",
+    help="Path to a configuration.",
 )
 @click.option(
     "--debug", envvar="GOUTTE_DEBUG", is_flag=True, help="Enable debug logging."
