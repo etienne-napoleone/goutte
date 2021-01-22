@@ -25,6 +25,16 @@ log = colorlog.getLogger(__name__)
 
 
 def get(path: str) -> dict:
+    """Get the configuration.
+    Parse and validate it with the config schema.
+    Exits if could not get a valid config.
+
+    Args:
+        path (str): path to the configuration file
+
+    Returns:
+        dict: valide configuration
+    """
     config = {}
     try:
         with open(path) as f:
