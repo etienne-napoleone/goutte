@@ -13,8 +13,9 @@ authors = ["etienne-napoleone <etienne@tomochain.com>"]
 python = "^3.6"
 python-digitalocean = "^1.16"
 colorlog = "^3.1"
-toml = "^0.10.2"
 click = "^7.1.2"
+PyYAML = "^5.4.1"
+yamale = "^3.0.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"

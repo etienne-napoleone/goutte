@@ -1,0 +1,13 @@
+name: weekly
+keep: 5
+targets:
+  droplets:
+    names:
+      - server01
+      - server02
+    tags:
+      - prod
+  volumes:
+    names:
+      - vol01
+      - vol02
