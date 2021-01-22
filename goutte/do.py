@@ -17,6 +17,11 @@ log = colorlog.getLogger(__name__)
 
 class DigitalOcean:
     def __init__(self, token: str) -> None:
+        """Class for DigitalOcean interactions
+
+        Args:
+            token (str): Digitalocean api token.
+        """
         self.manager = digitalocean.Manager(token=token)
         log.debug("created digitalocean manager")
 
@@ -26,6 +31,16 @@ class DigitalOcean:
     def get_droplets(
         self, names: List[str], tags: List[str], unique: bool = True
     ) -> Union[List[digitalocean.Droplet], Set[digitalocean.Droplet]]:
+        """Get droplets to snapshot
+
+        Args:
+            names (List[str]): List of droplet names to filter in.
+            tags (List[str]): List of droplet tags to filter in.
+            unique (bool, optional): Transform the list to a set. Defaults to True.
+
+        Returns:
+            Union[List[digitalocean.Droplet], Set[digitalocean.Droplet]]: Droplets.
+        """
         droplets = list()
         all_droplets = self._get_all_droplets()
         droplets.extend([droplet for droplet in all_droplets if droplet.name in names])
@@ -38,6 +53,15 @@ class DigitalOcean:
     def get_volumes(
         self, names: List[str], unique: bool = True
     ) -> Union[List[digitalocean.Volume], Set[digitalocean.Volume]]:
+        """Get volumes to snapshot
+
+        Args:
+            names (List[str]): List of volume names to filter in.
+            unique (bool, optional): Transform the list to a set. Defaults to True.
+
+        Returns:
+            Union[List[digitalocean.Volume], Set[digitalocean.Volume]]: Volumes.
+        """
         volumes = list()
         all_volumes = self._get_all_volumes()
         volumes.extend([volume for volume in all_volumes if volume.name in names])

@@ -30,10 +30,10 @@ def get(path: str) -> dict:
     Exits if could not get a valid config.
 
     Args:
-        path (str): path to the configuration file
+        path (str): Path to the configuration file.
 
     Returns:
-        dict: valide configuration
+        dict: Valide configuration.
     """
     config = {}
     try:

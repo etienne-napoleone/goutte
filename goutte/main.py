@@ -16,13 +16,18 @@ log = colorlog.getLogger(__name__)
     envvar="GOUTTE_CONFIG_PATH",
     type=click.Path(dir_okay=False, allow_dash=True),
     default="goutte.yml",
-    help="Path to a configuration.",
+    help="Configuration file path.",
 )
-@click.option(
-    "--debug", envvar="GOUTTE_DEBUG", is_flag=True, help="Enable debug logging."
-)
+@click.option("--debug", envvar="GOUTTE_DEBUG", is_flag=True, help="Enable debug logs.")
 @click.version_option(version=__version__)
 def entrypoint(config_path: str, do_token: str, debug: bool) -> None:
+    """CLI entrypoint
+
+    Args:
+        config_path (str): Configuration file path.
+        do_token (str): DigitalOcean api token.
+        debug (bool): Enable debug logs.
+    """
     log.info(f"goutte, version {__version__}")
     if debug:
         colorlog.getLogger().setLevel("DEBUG")
