@@ -14,7 +14,7 @@ type:
     volumes: include('volume', required=False)
 ---
 droplet:
-    names: list(regex('^[^-][A-Za-z0-9.-]*[^-]$', name='valid droplet name'), required=False)
+    names: list(regex('^[^.-][A-Za-z0-9.-]*[^.-]$', name='valid droplet name'), required=False)
     tags: list(regex('^[A-Za-z0-9:-_]+$', name='valid droplet tag'), required=False)
 ---
 volume:
