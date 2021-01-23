@@ -2,8 +2,13 @@ import click
 import colorlog
 
 from goutte import config
+from goutte import utils
 from goutte import __version__
 from goutte.do import DigitalOcean
+
+LABEL = "{name}-{type}-{item}-{date}.{id}.goutte"
+DATE = utils.get_date()
+ID = utils.get_id()
 
 log = colorlog.getLogger(__name__)
 
@@ -37,9 +42,33 @@ def entrypoint(config_path: str, do_token: str, debug: bool) -> None:
     volume_config = c["targets"].get("volumes", {})
     do = DigitalOcean(token=do_token)
     droplets = do.get_droplets(
-        names=droplet_config.get("names", []), tags=droplet_config.get("tags", [])
+        names=droplet_config.get("names", []),
+        tags=droplet_config.get("tags", []),
     )
     volumes = do.get_volumes(names=volume_config.get("names", []))
     log.info(
         f"found {len(droplets)} droplet(s) and {len(volumes)} volume(s) to snapshot"
     )
+    for droplet in droplets:
+        do.snapshot(
+            droplet,
+            LABEL.format(
+                name=c["name"],
+                type="droplet",
+                item=droplet.name,
+                id=ID,
+                date=DATE,
+            ),
+        )
+    for volume in volumes:
+        volume.snapshot(
+            volume,
+            LABEL.format(
+                name=c["name"],
+                type="volume",
+                item=droplet.name,
+                id=ID,
+                date=DATE,
+            ),
+        )
+    log.info("done, bye!")

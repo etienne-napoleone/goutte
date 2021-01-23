@@ -82,6 +82,28 @@ class DigitalOcean:
                 log.warning(f'no match found for volume name "{name}"')
         return set(volumes) if unique else volumes
 
+    def snapshot(
+        self, target: Union[digitalocean.Droplet, digitalocean.Volume], name: str
+    ) -> None:
+        try:
+            if isinstance(target, digitalocean.Droplet):
+                target.take_snapshot(name)
+            elif isinstance(target, digitalocean.Volume):
+                target.snapshot(name)
+        except NotFoundError:
+            log.warning(f"ignoring {target.name}, doesn't exist anymore")
+        except (DataReadError, JSONReadError, EndPointError):
+            log.fatal("api error while trying to fetch volumes")
+            sys.exit(1)
+        except (TokenError):
+            log.fatal("invalid digitalocean api token")
+            sys.exit(1)
+        except (Error):
+            log.fatal("unexpected api error while trying to fetch volumes")
+            sys.exit(1)
+        else:
+            log.info(f"created new snapshot {name}")
+
     def _get_all_droplets(self) -> List[digitalocean.Droplet]:
         try:
             droplets = self.manager.get_all_droplets()
@@ -99,7 +121,7 @@ class DigitalOcean:
     def _get_all_volumes(self) -> List[digitalocean.Volume]:
         try:
             volumes = self.manager.get_all_volumes()
-        except (DataReadError, JSONReadError, EndPointError):
+        except (DataReadError, JSONReadError, EndPointError, NotFoundError):
             log.fatal("api error while trying to fetch volumes")
             sys.exit(1)
         except (TokenError):
