@@ -43,11 +43,20 @@ class DigitalOcean:
         """
         droplets = list()
         all_droplets = self._get_all_droplets()
-        droplets.extend([droplet for droplet in all_droplets if droplet.name in names])
+        for name in names:
+            matches = [droplet for droplet in all_droplets if name == droplet.name]
+            if matches:
+                log.debug(f'found {len(matches)} match for droplet name "{name}"')
+                droplets.extend(matches)
+            else:
+                log.warning(f'no match found for droplet name "{name}"')
         for tag in tags:
-            droplets.extend(
-                [droplet for droplet in all_droplets if tag in droplet.tags]
-            )
+            matches = [droplet for droplet in all_droplets if tag in droplet.tags]
+            if matches:
+                log.debug(f'found {len(matches)} match for droplet tag "{tag}"')
+                droplets.extend(matches)
+            else:
+                log.warning(f'no match found for droplet tag "{tag}"')
         return set(droplets) if unique else droplets
 
     def get_volumes(
@@ -64,7 +73,13 @@ class DigitalOcean:
         """
         volumes = list()
         all_volumes = self._get_all_volumes()
-        volumes.extend([volume for volume in all_volumes if volume.name in names])
+        for name in names:
+            matches = [volume for volume in all_volumes if name == volume.name]
+            if matches:
+                log.debug(f'found {len(matches)} match for volume name "{name}"')
+                volumes.extend(matches)
+            else:
+                log.warning(f'no match found for volume name "{name}"')
         return set(volumes) if unique else volumes
 
     def _get_all_droplets(self) -> List[digitalocean.Droplet]:
